@@ -1,101 +1,133 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useLogin, useRegister, useCurrentUser, useLogout } from '@/hooks/api';
 import type { User, AuthContextType } from '@/types';
+import { getAuthToken, removeAuthToken } from '@/lib/api-client';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users for demonstration
-const MOCK_USERS: User[] = [
-  {
-    id: '1',
-    name: 'Admin User',
-    email: 'admin@hostel.com',
-    role: 'admin',
-    phone: '+237 677 777 777',
-    createdAt: '2024-01-01',
-  },
-  {
-    id: '2',
-    name: 'John Doe',
-    email: 'student@hostel.com',
-    role: 'student',
-    matricule: 'HT2024001',
-    department: 'Computer Science',
-    level: '300',
-    phone: '+237 677 888 888',
-    guardianContact: '+237 677 999 999',
-    assignedRoom: 'A12',
-    createdAt: '2024-01-15',
-  },
-];
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  // API hooks
+  const { mutateAsync: loginMutation } = useLogin();
+  const { mutateAsync: registerMutation } = useRegister();
+  const { mutateAsync: logoutMutation } = useLogout();
+  const { data: currentUserData, isLoading: userLoading } = useCurrentUser();
+
+  // Check for existing user on mount
   useEffect(() => {
-    // Check for stored auth token
-    const storedUser = localStorage.getItem('hostel_user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    const token = getAuthToken();
+    if (token) {
+      // Will be fetched by useCurrentUser hook
+      setIsAuthenticated(true);
     }
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, _password: string, role: string) => {
-    setIsLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const foundUser = MOCK_USERS.find(u => u.email === email && u.role === role);
-    if (!foundUser) {
-      throw new Error('Invalid credentials');
+  // Update user when currentUserData changes
+  useEffect(() => {
+    if (currentUserData) {
+      const userData: User = {
+        id: currentUserData.id,
+        name: currentUserData.name,
+        email: currentUserData.email,
+        role: currentUserData.role as 'admin' | 'hostel_manager' | 'student',
+        avatar: currentUserData.avatar,
+        phone: currentUserData.phone,
+        department: currentUserData.department,
+        level: currentUserData.level,
+        matricule: currentUserData.matricule,
+        guardianContact: currentUserData.guardianContact,
+        assignedRoom: currentUserData.assignedRoom,
+        createdAt: currentUserData.createdAt,
+      };
+      setUser(userData);
+      setIsAuthenticated(true);
     }
-    
-    setUser(foundUser);
-    localStorage.setItem('hostel_user', JSON.stringify(foundUser));
-    setIsLoading(false);
+  }, [currentUserData]);
+
+  const login = async (email: string, password: string, role: string) => {
+    try {
+      setIsLoading(true);
+      const response = await loginMutation({ email, password });
+      
+      if (response.access_token) {
+        const userData: User = {
+          id: response.user.id,
+          name: response.user.name,
+          email: response.user.email,
+          role: response.user.role as 'admin' | 'hostel_manager' | 'student',
+          avatar: response.user.avatar,
+          phone: response.user.phone,
+          status: response.user.status,
+          createdAt: response.user.createdAt,
+        };
+        setUser(userData);
+        setIsAuthenticated(true);
+      }
+    } catch (error) {
+      setIsAuthenticated(false);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const register = async (userData: Partial<User>, _password: string) => {
-    setIsLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const newUser: User = {
-      id: Math.random().toString(36).substr(2, 9),
-      name: userData.name || '',
-      email: userData.email || '',
-      role: userData.role || 'student',
-      phone: userData.phone,
-      department: userData.department,
-      level: userData.level,
-      matricule: userData.matricule,
-      guardianContact: userData.guardianContact,
-      createdAt: new Date().toISOString(),
-    };
-    
-    setUser(newUser);
-    localStorage.setItem('hostel_user', JSON.stringify(newUser));
-    setIsLoading(false);
+  const register = async (userData: Partial<User>, password: string) => {
+    try {
+      setIsLoading(true);
+      const response = await registerMutation({
+        email: userData.email || '',
+        password,
+        name: userData.name || '',
+        phone: userData.phone,
+        role: userData.role || 'STUDENT',
+        matricule: userData.matricule,
+        department: userData.department,
+        level: userData.level,
+        guardianContact: userData.guardianContact,
+      });
+
+      // After registration, automatically try to login
+      if (response && userData.email) {
+        await login(userData.email, password, userData.role || 'STUDENT');
+      }
+    } catch (error) {
+      setIsAuthenticated(false);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('hostel_user');
+  const logout = async () => {
+    try {
+      await logoutMutation();
+      setUser(null);
+      setIsAuthenticated(false);
+      removeAuthToken();
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Still clear local state even if server logout fails
+      setUser(null);
+      setIsAuthenticated(false);
+      removeAuthToken();
+    }
   };
 
   const resetPassword = async (email: string) => {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    console.log('Password reset email sent to:', email);
+    // TODO: Implement password reset when backend endpoint is available
+    console.log('Password reset requested for:', email);
   };
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        isAuthenticated: !!user,
-        isLoading,
+        isAuthenticated: isAuthenticated && !userLoading,
+        isLoading: isLoading || userLoading,
         login,
         register,
         logout,

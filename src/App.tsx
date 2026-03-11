@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { useEffect, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Layouts
 import DashboardLayout from './layouts/DashboardLayout';
@@ -27,6 +28,16 @@ import Notifications from './pages/shared/Notifications';
 // Context
 import { AuthProvider } from './contexts/AuthContext';
 import { NotificationProvider } from './contexts/NotificationContext';
+
+// Create Query Client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 10, // 10 minutes
+    },
+  },
+});
 
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger);
@@ -55,47 +66,49 @@ function App() {
   }
 
   return (
-    <AuthProvider>
-      <NotificationProvider>
-        <Router>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<LandingPage />} />
-            
-            {/* Auth Routes */}
-            <Route element={<AuthLayout />}>
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/password-reset" element={<PasswordReset />} />
-            </Route>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <NotificationProvider>
+          <Router>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<LandingPage />} />
+              
+              {/* Auth Routes */}
+              <Route element={<AuthLayout />}>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/password-reset" element={<PasswordReset />} />
+              </Route>
 
-            {/* Admin Routes */}
-            <Route element={<DashboardLayout role="admin" />}>
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/admin/students" element={<StudentManagement />} />
-              <Route path="/admin/rooms" element={<RoomManagement />} />
-              <Route path="/admin/allocations" element={<RoomAllocation />} />
-              <Route path="/admin/payments" element={<PaymentManagement />} />
-              <Route path="/admin/complaints" element={<Complaints />} />
-              <Route path="/admin/visitors" element={<VisitorManagement />} />
-              <Route path="/admin/reports" element={<Reports />} />
-              <Route path="/admin/profile" element={<Profile />} />
-              <Route path="/admin/notifications" element={<Notifications />} />
-            </Route>
+              {/* Admin Routes */}
+              <Route element={<DashboardLayout role="admin" />}>
+                <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route path="/admin/students" element={<StudentManagement />} />
+                <Route path="/admin/rooms" element={<RoomManagement />} />
+                <Route path="/admin/allocations" element={<RoomAllocation />} />
+                <Route path="/admin/payments" element={<PaymentManagement />} />
+                <Route path="/admin/complaints" element={<Complaints />} />
+                <Route path="/admin/visitors" element={<VisitorManagement />} />
+                <Route path="/admin/reports" element={<Reports />} />
+                <Route path="/admin/profile" element={<Profile />} />
+                <Route path="/admin/notifications" element={<Notifications />} />
+              </Route>
 
-            {/* Student Routes */}
-            <Route element={<DashboardLayout role="student" />}>
-              <Route path="/student/dashboard" element={<StudentDashboard />} />
-              <Route path="/student/profile" element={<Profile />} />
-              <Route path="/student/notifications" element={<Notifications />} />
-            </Route>
+              {/* Student Routes */}
+              <Route element={<DashboardLayout role="student" />}>
+                <Route path="/student/dashboard" element={<StudentDashboard />} />
+                <Route path="/student/profile" element={<Profile />} />
+                <Route path="/student/notifications" element={<Notifications />} />
+              </Route>
 
-            {/* Fallback */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Router>
-      </NotificationProvider>
-    </AuthProvider>
+              {/* Fallback */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </Router>
+        </NotificationProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 
