@@ -24,49 +24,12 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { dashboardStats, monthlyRevenueData, roomOccupancyData, students, payments, complaints } from '@/data/mockData';
-
-const statCards = [
-  {
-    title: 'Total Students',
-    value: dashboardStats.totalStudents,
-    icon: Users,
-    change: '+12%',
-    trend: 'up',
-    color: '#1a56db',
-  },
-  {
-    title: 'Total Rooms',
-    value: dashboardStats.totalRooms,
-    icon: Building2,
-    change: '+5%',
-    trend: 'up',
-    color: '#059669',
-  },
-  {
-    title: 'Occupancy Rate',
-    value: `${dashboardStats.occupancyRate}%`,
-    icon: BedDouble,
-    change: '-2%',
-    trend: 'down',
-    color: '#d97706',
-  },
-  {
-    title: 'Monthly Revenue',
-    value: `${(dashboardStats.monthlyRevenue / 1000000).toFixed(1)}M FCFA`,
-    icon: CreditCard,
-    change: '+8%',
-    trend: 'up',
-    color: '#7c3aed',
-  },
-];
-
-const recentStudents = students.slice(0, 5);
-const recentPayments = payments.slice(0, 5);
-const pendingComplaints = complaints.filter(c => c.status === 'pending').slice(0, 5);
+import { useDashboardStats } from '@/hooks/api';
 
 export default function AdminDashboard() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [timeRange, setTimeRange] = useState('7d');
+  const { data: stats, isLoading } = useDashboardStats();
 
   useEffect(() => {
     if (containerRef.current) {
@@ -77,7 +40,54 @@ export default function AdminDashboard() {
         { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: 'power2.out' }
       );
     }
-  }, []);
+  }, [isLoading]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="w-12 h-12 border-4 border-[#1a56db] border-t-transparent animate-spin"></div>
+      </div>
+    );
+  }
+
+  const statCards = [
+    {
+      title: 'Total Students',
+      value: stats?.totalStudents || 0,
+      icon: Users,
+      change: '+0%',
+      trend: 'up',
+      color: '#1a56db',
+    },
+    {
+      title: 'Total Rooms',
+      value: stats?.totalRooms || 0,
+      icon: Building2,
+      change: '+0%',
+      trend: 'up',
+      color: '#059669',
+    },
+    {
+      title: 'Occupancy Rate',
+      value: `${stats?.occupancyRate || 0}%`,
+      icon: BedDouble,
+      change: '+0%',
+      trend: 'up',
+      color: '#d97706',
+    },
+    {
+      title: 'Monthly Revenue',
+      value: `${(stats?.monthlyRevenue || 0).toLocaleString()} FCFA`,
+      icon: CreditCard,
+      change: '+0%',
+      trend: 'up',
+      color: '#7c3aed',
+    },
+  ];
+
+  const recentStudents = stats?.recentStudents || [];
+  const recentPayments = stats?.recentPayments || [];
+  const pendingComplaints = stats?.pendingComplaints || [];
 
   return (
     <div ref={containerRef} className="space-y-6">
@@ -88,7 +98,7 @@ export default function AdminDashboard() {
           <p className="text-gray-500">Welcome back! Here's what's happening today.</p>
         </div>
         <div className="flex items-center gap-3">
-          <select 
+          <select
             value={timeRange}
             onChange={(e) => setTimeRange(e.target.value)}
             className="bg-white border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:outline-none focus:border-[#1a56db]"
@@ -150,10 +160,10 @@ export default function AdminDashboard() {
             </div>
           </div>
           <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={monthlyRevenueData}>
+            <BarChart data={stats?.revenueData || []}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis dataKey="month" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
-              <YAxis stroke="#6b7280" fontSize={12} tickFormatter={(value) => `${value / 1000000}M`} tickLine={false} axisLine={false} />
+              <YAxis stroke="#6b7280" fontSize={12} tickFormatter={(value) => `${value / 1000}k`} tickLine={false} axisLine={false} />
               <Tooltip
                 contentStyle={{
                   backgroundColor: '#fff',
@@ -173,13 +183,13 @@ export default function AdminDashboard() {
             <h3 className="text-lg font-semibold text-gray-900">Room Occupancy</h3>
             <div className="flex items-center gap-2 text-gray-500 text-sm">
               <Building2 className="w-4 h-4" />
-              <span>{dashboardStats.occupiedRooms}/{dashboardStats.totalRooms} Occupied</span>
+              <span>{stats?.occupiedRooms || 0}/{stats?.totalRooms || 0} Occupied</span>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={250}>
             <PieChart>
               <Pie
-                data={roomOccupancyData}
+                data={stats?.roomOccupancyData || []}
                 cx="50%"
                 cy="50%"
                 innerRadius={60}
@@ -187,7 +197,7 @@ export default function AdminDashboard() {
                 paddingAngle={0}
                 dataKey="value"
               >
-                {roomOccupancyData.map((entry, index) => (
+                {(stats?.roomOccupancyData || []).map((entry: any, index: number) => (
                   <Cell key={`cell-${index}`} fill={entry.color} strokeWidth={0} />
                 ))}
               </Pie>
@@ -201,7 +211,7 @@ export default function AdminDashboard() {
             </PieChart>
           </ResponsiveContainer>
           <div className="flex justify-center gap-6 mt-4">
-            {roomOccupancyData.map((item, index) => (
+            {(stats?.roomOccupancyData || []).map((item: any, index: number) => (
               <div key={index} className="flex items-center gap-2">
                 <div className="w-3 h-3" style={{ backgroundColor: item.color }}></div>
                 <span className="text-sm text-gray-600">{item.name}</span>
@@ -230,11 +240,10 @@ export default function AdminDashboard() {
                   <p className="text-gray-500 text-sm">{student.matricule}</p>
                 </div>
                 <span
-                  className={`px-2 py-1 text-xs font-medium ${
-                    student.status === 'active'
-                      ? 'bg-emerald-100 text-emerald-700'
-                      : 'bg-amber-100 text-amber-700'
-                  }`}
+                  className={`px-2 py-1 text-xs font-medium ${student.status === 'active'
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : 'bg-amber-100 text-amber-700'
+                    }`}
                 >
                   {student.status}
                 </span>
@@ -253,14 +262,12 @@ export default function AdminDashboard() {
             {recentPayments.map((payment) => (
               <div key={payment.id} className="flex items-center gap-3 p-4 hover:bg-gray-50 transition-colors">
                 <div
-                  className={`w-10 h-10 flex items-center justify-center ${
-                    payment.status === 'paid' ? 'bg-emerald-100' : 'bg-amber-100'
-                  }`}
+                  className={`w-10 h-10 flex items-center justify-center ${payment.status === 'paid' ? 'bg-emerald-100' : 'bg-amber-100'
+                    }`}
                 >
                   <CreditCard
-                    className={`w-5 h-5 ${
-                      payment.status === 'paid' ? 'text-emerald-600' : 'text-amber-600'
-                    }`}
+                    className={`w-5 h-5 ${payment.status === 'paid' ? 'text-emerald-600' : 'text-amber-600'
+                      }`}
                   />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -270,9 +277,8 @@ export default function AdminDashboard() {
                 <div className="text-right">
                   <p className="text-gray-900 font-medium">{payment.amount.toLocaleString()}</p>
                   <span
-                    className={`text-xs ${
-                      payment.status === 'paid' ? 'text-emerald-600' : 'text-amber-600'
-                    }`}
+                    className={`text-xs ${payment.status === 'paid' ? 'text-emerald-600' : 'text-amber-600'
+                      }`}
                   >
                     {payment.status}
                   </span>
@@ -299,13 +305,12 @@ export default function AdminDashboard() {
                     <p className="text-gray-900 font-medium truncate">{complaint.title}</p>
                     <p className="text-gray-500 text-sm">{complaint.studentName}</p>
                     <span
-                      className={`inline-block mt-1 px-2 py-0.5 text-xs font-medium ${
-                        complaint.priority === 'high'
-                          ? 'bg-red-100 text-red-700'
-                          : complaint.priority === 'medium'
+                      className={`inline-block mt-1 px-2 py-0.5 text-xs font-medium ${complaint.priority === 'high'
+                        ? 'bg-red-100 text-red-700'
+                        : complaint.priority === 'medium'
                           ? 'bg-amber-100 text-amber-700'
                           : 'bg-blue-100 text-blue-700'
-                      }`}
+                        }`}
                     >
                       {complaint.priority}
                     </span>
