@@ -11,6 +11,7 @@ export interface User {
   matricule?: string;
   guardianContact?: string;
   assignedRoom?: string;
+  status?: string;
   createdAt: string;
 }
 

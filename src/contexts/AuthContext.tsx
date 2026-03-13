@@ -33,7 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         id: currentUserData.id,
         name: currentUserData.name,
         email: currentUserData.email,
-        role: currentUserData.role as 'admin' | 'hostel_manager' | 'student',
+        role: currentUserData.role.toLowerCase() as 'admin' | 'hostel_manager' | 'student',
         avatar: currentUserData.avatar,
         phone: currentUserData.phone,
         department: currentUserData.department,
@@ -41,6 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         matricule: currentUserData.matricule,
         guardianContact: currentUserData.guardianContact,
         assignedRoom: currentUserData.assignedRoom,
+        status: currentUserData.status,
         createdAt: currentUserData.createdAt,
       };
       setUser(userData);
@@ -52,13 +53,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       setIsLoading(true);
       const response = await loginMutation({ email, password });
-      
+
       if (response.access_token) {
         const userData: User = {
           id: response.user.id,
           name: response.user.name,
           email: response.user.email,
-          role: response.user.role as 'admin' | 'hostel_manager' | 'student',
+          role: response.user.role.toLowerCase() as 'admin' | 'hostel_manager' | 'student',
           avatar: response.user.avatar,
           phone: response.user.phone,
           status: response.user.status,
