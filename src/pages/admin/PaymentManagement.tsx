@@ -41,7 +41,7 @@ export default function PaymentManagement() {
   }, []);
 
   // Filter payments
-  const filteredPayments = paymentList.filter((payment) => {
+  const filteredPayments = paymentList.filter((payment: any) => {
     const matchesSearch =
       payment.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       payment.studentId.toLowerCase().includes(searchQuery.toLowerCase());
@@ -166,7 +166,7 @@ export default function PaymentManagement() {
               </tr>
             </thead>
             <tbody>
-              {paginatedPayments.map((payment) => (
+              {paginatedPayments.map((payment: any) => (
                 <tr key={payment.id}>
                   <td>
                     <div className="flex items-center gap-3">
@@ -291,16 +291,23 @@ export default function PaymentManagement() {
                 <span className="text-gray-900 capitalize">{((selectedPayment as any).method || '—').replace('_', ' ')}</span>
               </div>
               <div className="py-2 border-b border-gray-100">
-                <p className="text-gray-500 mb-2">Proof:</p>
+                <p className="text-gray-500 mb-2">Proof Information:</p>
                 {(selectedPayment as any).proofImageUrl ? (
-                  <a
-                    className="text-[#1a56db] hover:underline"
-                    href={`http://localhost:8000${(selectedPayment as any).proofImageUrl}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Open proof
-                  </a>
+                  <div className="space-y-2">
+                    <img
+                      src={`http://localhost:8000${(selectedPayment as any).proofImageUrl}`}
+                      alt="Payment Proof"
+                      className="w-full max-h-48 object-contain rounded border border-gray-200 shadow-sm"
+                    />
+                    <a
+                      className="inline-block text-[#1a56db] text-sm hover:underline font-medium"
+                      href={`http://localhost:8000${(selectedPayment as any).proofImageUrl}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      View Full Size Reference
+                    </a>
+                  </div>
                 ) : (
                   <p className="text-gray-400">No proof uploaded</p>
                 )}

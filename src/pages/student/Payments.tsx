@@ -102,16 +102,19 @@ export default function StudentPayments() {
                   <td className="text-gray-600 capitalize">{(p.method || '').replace('_', ' ')}</td>
                   <td className="text-gray-900">{Number(p.amount).toLocaleString()} FCFA</td>
                   <td className="text-gray-600">{p.status}</td>
-                  <td className="text-gray-600">
+                  <td className="py-3 px-4">
                     {p.proofImageUrl ? (
-                      <a
-                        className="text-[#1a56db] hover:underline"
-                        href={`http://localhost:8000${p.proofImageUrl}`}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        View
-                      </a>
+                      <div className="group relative">
+                        <img
+                          src={`http://localhost:8000${p.proofImageUrl}`}
+                          alt="Proof"
+                          className="w-20 h-20 object-cover rounded border border-gray-200 cursor-pointer hover:opacity-80 transition-opacity"
+                          onClick={() => window.open(`http://localhost:8000${p.proofImageUrl}`, '_blank')}
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
+                          <span className="bg-black/50 text-white text-[10px] px-1 rounded">Click to enlarge</span>
+                        </div>
+                      </div>
                     ) : (
                       <span className="text-gray-400">—</span>
                     )}
