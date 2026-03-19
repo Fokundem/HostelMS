@@ -1,4 +1,4 @@
-import { Outlet, Navigate } from 'react-router-dom';
+import { Outlet, Navigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
@@ -32,13 +32,15 @@ export default function AuthLayout() {
       <div className="hidden lg:flex lg:w-1/2 bg-[#1a56db] flex-col justify-between p-12">
         <div>
           <div className="flex items-center gap-3">
+            <Link to="/" className="flex items-center gap-3">
             <div className="w-10 h-10 bg-white flex items-center justify-center">
               <Building2 className="w-6 h-6 text-[#1a56db]" />
             </div>
-            <span className="font-bold text-white text-xl tracking-tight">HostelMS</span>
+              <span className="font-bold text-white text-xl tracking-tight">HostelMS</span>
+            </Link>
           </div>
         </div>
-        
+
         <div className="space-y-8">
           <h1 className="text-4xl font-bold text-white leading-tight">
             Modern Hostel<br />Management System
@@ -46,7 +48,7 @@ export default function AuthLayout() {
           <p className="text-blue-100 text-lg max-w-md">
             Streamline your hostel operations with our comprehensive digital platform.
           </p>
-          
+
           <div className="grid grid-cols-2 gap-4">
             {[
               { icon: Users, label: 'Student Management' },
@@ -61,7 +63,7 @@ export default function AuthLayout() {
             ))}
           </div>
         </div>
-        
+
         <p className="text-blue-200 text-sm">
           © 2024 Hostel Management System. All rights reserved.
         </p>

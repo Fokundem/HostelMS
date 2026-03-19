@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [currentUserData]);
 
-  const login = async (email: string, password: string, role: string) => {
+  const login = async (email: string, password: string) => {
     try {
       setIsLoading(true);
       const response = await loginMutation({ email, password });
@@ -93,7 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // After registration, automatically try to login
       if (response && userData.email) {
-        await login(userData.email, password, userData.role || 'STUDENT');
+        await login(userData.email, password);
       }
     } catch (error) {
       setIsAuthenticated(false);

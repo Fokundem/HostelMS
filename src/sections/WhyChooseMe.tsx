@@ -59,9 +59,13 @@ export function WhyChooseMe() {
   const wideRef = useRef<HTMLDivElement>(null);
   const [shouldAnimateStats, setShouldAnimateStats] = useState(false);
 
-  if (!whyChooseMeConfig.titleRegular && whyChooseMeConfig.stats.length === 0 && whyChooseMeConfig.featureCards.length === 0) return null;
+  const shouldRender =
+    !!whyChooseMeConfig.titleRegular ||
+    whyChooseMeConfig.stats.length > 0 ||
+    whyChooseMeConfig.featureCards.length > 0;
 
   useEffect(() => {
+    if (!shouldRender) return;
     const ctx = gsap.context(() => {
       // Section header — slide up
       ScrollTrigger.create({
@@ -223,7 +227,9 @@ export function WhyChooseMe() {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [shouldRender]);
+
+  if (!shouldRender) return null;
 
   return (
     <section

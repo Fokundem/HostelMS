@@ -45,7 +45,7 @@ export function RoomSelectionView() {
     });
   };
 
-  if (myAllocation && myAllocation.status === 'APPROVED') {
+  if (myAllocation && (myAllocation.status === 'APPROVED' || myAllocation.status === 'approved')) {
     return (
       <div className="space-y-6">
         <Card className="bg-green-50 border-green-200 p-6">
@@ -65,7 +65,7 @@ export function RoomSelectionView() {
     );
   }
 
-  if (myAllocation && myAllocation.status === 'PENDING') {
+  if (myAllocation && (myAllocation.status === 'PENDING' || myAllocation.status === 'pending')) {
     return (
       <div className="space-y-6">
         <Card className="bg-blue-50 border-blue-200 p-6">
@@ -74,9 +74,11 @@ export function RoomSelectionView() {
             <div>
               <h3 className="font-semibold text-lg text-blue-900">Room Request Pending</h3>
               <p className="text-blue-800 mt-2">
-                Your request for <strong>Room {myAllocation.room.roomNumber}</strong> is pending admin approval.
+                Your request for <strong>Room {myAllocation.room?.roomNumber}</strong> is pending admin approval.
               </p>
-              <p className="text-sm text-blue-700 mt-2">Requested on: {new Date(myAllocation.requestedAt).toLocaleDateString()}</p>
+              <p className="text-sm text-blue-700 mt-2">
+                Requested on: {myAllocation.requestedAt ? new Date(myAllocation.requestedAt).toLocaleDateString() : '—'}
+              </p>
             </div>
             <Badge className="bg-blue-600">Pending</Badge>
           </div>
@@ -85,8 +87,18 @@ export function RoomSelectionView() {
     );
   }
 
+  const showRejectedBanner = myAllocation && (myAllocation.status === 'REJECTED' || myAllocation.status === 'rejected');
+
   return (
     <div className="space-y-6">
+      {/* Rejected banner - allow new request */}
+      {showRejectedBanner && (
+        <Card className="bg-amber-50 border-amber-200 p-4">
+          <p className="text-amber-800 text-sm">
+            Your previous room request was rejected. You may submit a new request below.
+          </p>
+        </Card>
+      )}
       {/* Payment Status */}
       {paymentSummary && paymentSummary.totalOverdue > 0 && (
         <Card className="bg-red-50 border-red-200 p-4">

@@ -17,9 +17,10 @@ import {
   GraduationCap,
   Building,
   Save,
+  Lock,
 } from 'lucide-react';
-import { students } from '@/data/mockData';
 import type { Student } from '@/types';
+import { useCreateStudent, useDeleteStudent, useStudents, useUpdateStudent } from '@/hooks/api';
 
 export default function StudentManagement() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -29,7 +30,10 @@ export default function StudentManagement() {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [studentList, setStudentList] = useState<Student[]>(students);
+  const { data: studentsData = [] } = useStudents();
+  const { mutateAsync: createStudent } = useCreateStudent();
+  const { mutateAsync: updateStudent } = useUpdateStudent();
+  const { mutateAsync: deleteStudent } = useDeleteStudent();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -37,11 +41,13 @@ export default function StudentManagement() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    password: '',
     matricule: '',
     department: '',
     level: '',
     phone: '',
     guardianContact: '',
+    role: 'student' as NonNullable<Student['role']>,
     status: 'active' as Student['status'],
   });
 
@@ -58,7 +64,7 @@ export default function StudentManagement() {
   }, []);
 
   // Filter students
-  const filteredStudents = studentList.filter((student) => {
+  const filteredStudents = (studentsData as Student[]).filter((student) => {
     const matchesSearch =
       student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       student.matricule.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -74,42 +80,43 @@ export default function StudentManagement() {
     currentPage * itemsPerPage
   );
 
-  const handleAdd = () => {
-    const newStudent: Student = {
-      id: Math.random().toString(36).substr(2, 9),
-      userId: Math.random().toString(36).substr(2, 9),
+  const handleAdd = async () => {
+    await createStudent({
       name: formData.name,
       email: formData.email,
+      password: formData.password,
       matricule: formData.matricule,
       department: formData.department,
       level: formData.level,
-      phone: formData.phone,
-      guardianContact: formData.guardianContact,
-      status: formData.status,
-      createdAt: new Date().toISOString(),
-    };
-    setStudentList([...studentList, newStudent]);
+      phone: formData.phone || undefined,
+      guardianContact: formData.guardianContact || undefined,
+    });
     setIsAddModalOpen(false);
     resetForm();
   };
 
-  const handleEdit = () => {
+  const handleEdit = async () => {
     if (selectedStudent) {
-      setStudentList(
-        studentList.map((s) =>
-          s.id === selectedStudent.id
-            ? { ...s, ...formData }
-            : s
-        )
-      );
+      await updateStudent({
+        studentId: selectedStudent.id,
+        data: {
+          name: formData.name,
+          phone: formData.phone || undefined,
+          guardianContact: formData.guardianContact || undefined,
+          department: formData.department,
+          level: formData.level,
+          status: formData.status.toUpperCase(),
+          role: formData.role.toUpperCase(),
+        },
+      });
       setIsEditModalOpen(false);
       setSelectedStudent(null);
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (selectedStudent) {
-      setStudentList(studentList.filter((s) => s.id !== selectedStudent.id));
+      await deleteStudent(selectedStudent.id);
       setIsDeleteModalOpen(false);
       setSelectedStudent(null);
     }
@@ -119,11 +126,13 @@ export default function StudentManagement() {
     setFormData({
       name: '',
       email: '',
+      password: '',
       matricule: '',
       department: '',
       level: '',
       phone: '',
       guardianContact: '',
+      role: 'student',
       status: 'active',
     });
   };
@@ -133,11 +142,13 @@ export default function StudentManagement() {
     setFormData({
       name: student.name,
       email: student.email,
+      password: '',
       matricule: student.matricule,
       department: student.department,
       level: student.level,
       phone: student.phone,
       guardianContact: student.guardianContact || '',
+      role: student.role || 'student',
       status: student.status,
     });
     setIsEditModalOpen(true);
@@ -189,6 +200,21 @@ export default function StudentManagement() {
           />
         </div>
       </div>
+      {isAddModalOpen && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Temporary Password *</label>
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <input
+              type="password"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              placeholder="Set initial password"
+              className="input-sharp pl-10"
+            />
+          </div>
+        </div>
+      )}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1.5">Matricule *</label>
         <input
@@ -268,6 +294,19 @@ export default function StudentManagement() {
           <option value="active">Active</option>
           <option value="inactive">Inactive</option>
           <option value="suspended">Suspended</option>
+        </select>
+      </div>
+      <div className="md:col-span-2">
+        <label className="block text-sm font-medium text-gray-700 mb-1.5">Role</label>
+        <select
+          value={formData.role}
+          onChange={(e) => setFormData({ ...formData, role: e.target.value as NonNullable<Student['role']> })}
+          className="input-sharp"
+        >
+          <option value="student">Student</option>
+          <option value="employee">Employee</option>
+          <option value="hostel_manager">Hostel Manager</option>
+          <option value="admin">Admin</option>
         </select>
       </div>
     </div>

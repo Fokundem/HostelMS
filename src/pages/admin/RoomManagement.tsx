@@ -18,8 +18,8 @@ import {
   Droplets,
   Zap,
 } from 'lucide-react';
-import { rooms } from '@/data/mockData';
 import type { Room } from '@/types';
+import { useAllRooms, useCreateRoom, useDeleteRoom, useHostels, useUpdateRoom } from '@/hooks/api';
 
 const amenityOptions = [
   { id: 'wifi', label: 'WiFi', icon: Wifi },
@@ -38,7 +38,11 @@ export default function RoomManagement() {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [roomList, setRoomList] = useState<Room[]>(rooms);
+  const { data: roomList = [] } = useAllRooms();
+  const { data: hostels = [] } = useHostels();
+  const { mutateAsync: createRoom } = useCreateRoom();
+  const { mutateAsync: updateRoom } = useUpdateRoom();
+  const { mutateAsync: deleteRoom } = useDeleteRoom();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
@@ -51,6 +55,7 @@ export default function RoomManagement() {
     price: 50000,
     status: 'available' as Room['status'],
     amenities: [] as string[],
+    hostelId: '' as string,
   });
 
   const gridRef = useRef<HTMLDivElement>(null);
@@ -82,40 +87,44 @@ export default function RoomManagement() {
     currentPage * itemsPerPage
   );
 
-  const handleAdd = () => {
-    const newRoom: Room = {
-      id: Math.random().toString(36).substr(2, 9),
-      roomNumber: formData.roomNumber,
-      block: formData.block,
-      floor: formData.floor,
-      capacity: formData.capacity,
-      occupied: 0,
-      price: formData.price,
-      status: formData.status,
-      amenities: formData.amenities,
-    };
-    setRoomList([...roomList, newRoom]);
+  const handleAdd = async () => {
+    await createRoom({
+      hostelId: formData.hostelId || undefined,
+      data: {
+        roomNumber: formData.roomNumber,
+        block: formData.block,
+        floor: formData.floor,
+        capacity: formData.capacity,
+        price: formData.price,
+        amenities: formData.amenities,
+      },
+    });
     setIsAddModalOpen(false);
     resetForm();
   };
 
-  const handleEdit = () => {
+  const handleEdit = async () => {
     if (selectedRoom) {
-      setRoomList(
-        roomList.map((r) =>
-          r.id === selectedRoom.id
-            ? { ...r, ...formData }
-            : r
-        )
-      );
+      await updateRoom({
+        roomId: selectedRoom.id,
+        data: {
+          roomNumber: formData.roomNumber,
+          block: formData.block,
+          floor: formData.floor,
+          capacity: formData.capacity,
+          price: formData.price,
+          amenities: formData.amenities,
+          status: formData.status.toUpperCase(),
+        },
+      });
       setIsEditModalOpen(false);
       setSelectedRoom(null);
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (selectedRoom) {
-      setRoomList(roomList.filter((r) => r.id !== selectedRoom.id));
+      await deleteRoom(selectedRoom.id);
       setIsDeleteModalOpen(false);
       setSelectedRoom(null);
     }
@@ -130,6 +139,7 @@ export default function RoomManagement() {
       price: 50000,
       status: 'available',
       amenities: [],
+      hostelId: (hostels as any[])?.[0]?.id || '',
     });
   };
 
@@ -143,6 +153,7 @@ export default function RoomManagement() {
       price: room.price,
       status: room.status,
       amenities: room.amenities,
+      hostelId: (room as any).hostelId || (hostels as any[])?.[0]?.id || '',
     });
     setIsEditModalOpen(true);
   };
@@ -171,6 +182,29 @@ export default function RoomManagement() {
 
   const renderForm = () => (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="md:col-span-2">
+        <label className="block text-sm font-medium text-gray-700 mb-1.5">Hostel *</label>
+        <select
+          value={formData.hostelId}
+          onChange={(e) => setFormData({ ...formData, hostelId: e.target.value })}
+          className="input-sharp"
+          required
+        >
+          <option value="" disabled>
+            Select hostel
+          </option>
+          {(hostels as any[]).map((h) => (
+            <option key={h.id} value={h.id}>
+              {h.name} ({h.code})
+            </option>
+          ))}
+        </select>
+        {(hostels as any[]).length === 0 && (
+          <p className="text-sm text-red-600 mt-2">
+            No hostels found. Create one first in Admin → Hostels.
+          </p>
+        )}
+      </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1.5">Room Number *</label>
         <input

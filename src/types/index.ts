@@ -41,6 +41,7 @@ export interface Student {
   guardianContact: string;
   assignedRoom?: string;
   roomId?: string;
+  role?: 'admin' | 'hostel_manager' | 'student' | 'employee';
   status: 'active' | 'inactive' | 'suspended';
   avatar?: string;
   createdAt: string;
@@ -52,10 +53,15 @@ export interface Payment {
   studentId: string;
   studentName: string;
   amount: number;
-  status: 'paid' | 'pending' | 'overdue';
+  status: 'pending' | 'submitted' | 'approved' | 'paid' | 'rejected' | 'overdue';
   type: 'hostel_fee' | 'maintenance' | 'other';
   month: string;
   year: number;
+  method?: string;
+  proofImageUrl?: string;
+  rejectionReason?: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
   paidAt?: string;
   createdAt: string;
 }
@@ -85,9 +91,13 @@ export interface Visitor {
   studentName: string;
   roomNumber: string;
   purpose: string;
-  entryTime: string;
+  status: 'pending' | 'approved' | 'rejected';
+  requestedAt?: string;
+  approvedAt?: string;
+  approvedBy?: string;
+  rejectionReason?: string;
+  entryTime?: string;
   exitTime?: string;
-  status: 'in' | 'out';
 }
 
 // Notification Types
@@ -134,7 +144,7 @@ export interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string, role: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
   register: (userData: Partial<User>, password: string) => Promise<void>;
   logout: () => void;
   resetPassword: (email: string) => Promise<void>;

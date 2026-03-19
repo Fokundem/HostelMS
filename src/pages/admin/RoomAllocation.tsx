@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
+import { toast } from 'sonner';
 import {
   Search,
   CheckCircle,
@@ -13,8 +14,8 @@ import {
   X,
   AlertCircle,
 } from 'lucide-react';
-import { roomAllocations } from '@/data/mockData';
 import type { RoomAllocation } from '@/types';
+import { useAllocations, useApproveAllocation, useRejectAllocation } from '@/hooks/api';
 
 export default function RoomAllocation() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -22,7 +23,13 @@ export default function RoomAllocation() {
   const [selectedAllocation, setSelectedAllocation] = useState<RoomAllocation | null>(null);
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
-  const [allocationList, setAllocationList] = useState<RoomAllocation[]>(roomAllocations);
+  const [rejectReason, setRejectReason] = useState('');
+  const { data: allocationList = [], isLoading: allocationsLoading } = useAllocations(
+    filterStatus === 'all' ? undefined : filterStatus,
+    undefined
+  );
+  const { mutateAsync: approveAllocation } = useApproveAllocation();
+  const { mutateAsync: rejectAllocation } = useRejectAllocation();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -54,27 +61,31 @@ export default function RoomAllocation() {
     currentPage * itemsPerPage
   );
 
-  const handleApprove = () => {
+  const handleApprove = async () => {
     if (selectedAllocation) {
-      setAllocationList(
-        allocationList.map((a) =>
-          a.id === selectedAllocation.id
-            ? { ...a, status: 'approved', approvedAt: new Date().toISOString(), approvedBy: 'Admin' }
-            : a
-        )
-      );
-      setIsApproveModalOpen(false);
-      setSelectedAllocation(null);
+      try {
+        await approveAllocation(selectedAllocation.id);
+        toast.success('Room allocation approved successfully');
+        setIsApproveModalOpen(false);
+        setSelectedAllocation(null);
+      } catch (error: any) {
+        toast.error(error?.message || 'Failed to approve allocation');
+      }
     }
   };
 
-  const handleReject = () => {
+  const handleReject = async () => {
     if (selectedAllocation) {
-      setAllocationList(
-        allocationList.map((a) => (a.id === selectedAllocation.id ? { ...a, status: 'rejected' } : a))
-      );
-      setIsRejectModalOpen(false);
-      setSelectedAllocation(null);
+      const reason = rejectReason.trim() || 'Rejected by admin';
+      try {
+        await rejectAllocation({ allocationId: selectedAllocation.id, reason });
+        toast.success('Room allocation rejected');
+        setIsRejectModalOpen(false);
+        setSelectedAllocation(null);
+        setRejectReason('');
+      } catch (error: any) {
+        toast.error(error?.message || 'Failed to reject allocation');
+      }
     }
   };
 
@@ -92,9 +103,9 @@ export default function RoomAllocation() {
   };
 
   // Stats
-  const pendingCount = allocationList.filter((a) => a.status === 'pending').length;
-  const approvedCount = allocationList.filter((a) => a.status === 'approved').length;
-  const rejectedCount = allocationList.filter((a) => a.status === 'rejected').length;
+  const pendingCount = (allocationList as RoomAllocation[]).filter((a) => a.status === 'pending').length;
+  const approvedCount = (allocationList as RoomAllocation[]).filter((a) => a.status === 'approved').length;
+  const rejectedCount = (allocationList as RoomAllocation[]).filter((a) => a.status === 'rejected').length;
 
   return (
     <div className="space-y-6">
@@ -172,7 +183,21 @@ export default function RoomAllocation() {
               </tr>
             </thead>
             <tbody>
-              {paginatedAllocations.map((allocation) => (
+              {allocationsLoading && (
+                <tr>
+                  <td colSpan={5} className="p-8 text-center text-gray-500">
+                    Loading allocations...
+                  </td>
+                </tr>
+              )}
+              {!allocationsLoading && paginatedAllocations.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="p-8 text-center text-gray-500">
+                    No allocations found.
+                  </td>
+                </tr>
+              )}
+              {!allocationsLoading && paginatedAllocations.map((allocation) => (
                 <tr key={allocation.id}>
                   <td>
                     <div className="flex items-center gap-3">
@@ -313,10 +338,20 @@ export default function RoomAllocation() {
                 <AlertCircle className="w-8 h-8 text-red-600" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Reject Allocation</h3>
-              <p className="text-gray-500 mb-6">
+              <p className="text-gray-500 mb-4">
                 Reject room allocation request from{' '}
                 <span className="text-gray-900 font-medium">{selectedAllocation.studentName}</span>?
               </p>
+              <div className="mb-6 text-left">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Reason (optional)</label>
+                <textarea
+                  value={rejectReason}
+                  onChange={(e) => setRejectReason(e.target.value)}
+                  placeholder="e.g. Room no longer available"
+                  className="w-full input-sharp min-h-[80px] resize-none"
+                  rows={3}
+                />
+              </div>
               <div className="flex gap-3">
                 <button
                   onClick={() => setIsRejectModalOpen(false)}

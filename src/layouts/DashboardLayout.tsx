@@ -28,6 +28,7 @@ interface DashboardLayoutProps {
 
 const adminNavItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/admin/dashboard' },
+  { icon: Building2, label: 'Hostels', href: '/admin/hostels' },
   { icon: Users, label: 'Students', href: '/admin/students' },
   { icon: Building2, label: 'Rooms', href: '/admin/rooms' },
   { icon: BedDouble, label: 'Allocations', href: '/admin/allocations' },
@@ -39,9 +40,10 @@ const adminNavItems = [
 
 const studentNavItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/student/dashboard' },
-  { icon: BedDouble, label: 'My Room', href: '/student/dashboard?tab=room' },
-  { icon: CreditCard, label: 'Payments', href: '/student/dashboard?tab=payments' },
-  { icon: MessageSquare, label: 'Complaints', href: '/student/dashboard?tab=complaints' },
+  { icon: BedDouble, label: 'My Room', href: '/student/room' },
+  { icon: CreditCard, label: 'Payments', href: '/student/payments' },
+  { icon: MessageSquare, label: 'Complaints', href: '/student/complaints' },
+  { icon: UserCheck, label: 'Visitors', href: '/student/visitors' },
 ];
 
 export default function DashboardLayout({ role }: DashboardLayoutProps) {

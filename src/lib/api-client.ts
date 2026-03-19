@@ -22,11 +22,19 @@ const fetchWithAuth = async (
   options: RequestInit = {}
 ) => {
   const token = getAuthToken();
-  
+
+  const isFormDataBody =
+    typeof FormData !== 'undefined' && options.body instanceof FormData;
+
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>),
   };
+
+  // Only set JSON content-type when sending JSON.
+  // For FormData, the browser sets the proper multipart boundary automatically.
+  if (!isFormDataBody && !headers['Content-Type']) {
+    headers['Content-Type'] = 'application/json';
+  }
 
   if (token) {
     headers.Authorization = `Bearer ${token}`;
@@ -46,8 +54,17 @@ const fetchWithAuth = async (
   if (!response.ok) {
     try {
       const error = await response.json();
-      throw new Error(error.detail || error.message || 'API request failed');
-    } catch {
+      let message = 'API request failed';
+      if (error.detail) {
+        message = Array.isArray(error.detail)
+          ? error.detail.map((e: { msg?: string }) => e.msg || JSON.stringify(e)).join(', ')
+          : String(error.detail);
+      } else if (error.message) {
+        message = String(error.message);
+      }
+      throw new Error(message);
+    } catch (e) {
+      if (e instanceof Error) throw e;
       throw new Error('API request failed');
     }
   }
@@ -63,6 +80,12 @@ const post = (url: string, data: any) =>
   fetchWithAuth(url, {
     method: 'POST',
     body: JSON.stringify(data),
+  });
+
+const postForm = (url: string, data: FormData) =>
+  fetchWithAuth(url, {
+    method: 'POST',
+    body: data,
   });
 
 // PUT request
@@ -82,6 +105,7 @@ const del = (url: string) =>
 export const apiClient = {
   get,
   post,
+  postForm,
   put,
   delete: del,
 };
@@ -90,6 +114,7 @@ export const apiClient = {
 export default {
   get,
   post,
+  postForm,
   put,
   delete: del,
   getAuthToken,

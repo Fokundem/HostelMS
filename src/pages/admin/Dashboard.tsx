@@ -23,7 +23,6 @@ import {
   BedDouble,
   AlertCircle,
 } from 'lucide-react';
-import { dashboardStats, monthlyRevenueData, roomOccupancyData, students, payments, complaints } from '@/data/mockData';
 import { useDashboardStats } from '@/hooks/api';
 
 export default function AdminDashboard() {

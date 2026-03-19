@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -15,6 +14,10 @@ import Register from './pages/auth/Register';
 import PasswordReset from './pages/auth/PasswordReset';
 import AdminDashboard from './pages/admin/Dashboard';
 import StudentDashboard from './pages/student/Dashboard';
+import StudentRoom from './pages/student/Room';
+import StudentPayments from './pages/student/Payments';
+import StudentComplaints from './pages/student/Complaints';
+import StudentVisitors from './pages/student/Visitors';
 import StudentManagement from './pages/admin/StudentManagement';
 import RoomManagement from './pages/admin/RoomManagement';
 import RoomAllocation from './pages/admin/RoomAllocation';
@@ -22,6 +25,7 @@ import PaymentManagement from './pages/admin/PaymentManagement';
 import Complaints from './pages/admin/Complaints';
 import VisitorManagement from './pages/admin/VisitorManagement';
 import Reports from './pages/admin/Reports';
+import Hostels from './pages/admin/Hostels';
 import Profile from './pages/shared/Profile';
 import Notifications from './pages/shared/Notifications';
 
@@ -43,28 +47,6 @@ const queryClient = new QueryClient({
 gsap.registerPlugin(ScrollTrigger);
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Simulate initial loading
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-[#0d1310] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[#e7f87c] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-[#f4f4f4] text-lg font-medium">Loading Hostel Management System...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
@@ -84,6 +66,7 @@ function App() {
               {/* Admin Routes */}
               <Route element={<DashboardLayout role="admin" />}>
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route path="/admin/hostels" element={<Hostels />} />
                 <Route path="/admin/students" element={<StudentManagement />} />
                 <Route path="/admin/rooms" element={<RoomManagement />} />
                 <Route path="/admin/allocations" element={<RoomAllocation />} />
@@ -98,6 +81,10 @@ function App() {
               {/* Student Routes */}
               <Route element={<DashboardLayout role="student" />}>
                 <Route path="/student/dashboard" element={<StudentDashboard />} />
+                <Route path="/student/room" element={<StudentRoom />} />
+                <Route path="/student/payments" element={<StudentPayments />} />
+                <Route path="/student/complaints" element={<StudentComplaints />} />
+                <Route path="/student/visitors" element={<StudentVisitors />} />
                 <Route path="/student/profile" element={<Profile />} />
                 <Route path="/student/notifications" element={<Notifications />} />
               </Route>

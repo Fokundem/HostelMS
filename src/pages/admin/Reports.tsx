@@ -22,7 +22,7 @@ import {
   Printer,
   Share2,
 } from 'lucide-react';
-import { dashboardStats, monthlyRevenueData, roomOccupancyData, departmentData } from '@/data/mockData';
+import { useDashboardStats, useStudents } from '@/hooks/api';
 
 const reportTypes = [
   { id: 'occupancy', name: 'Occupancy Report', icon: Building2, description: 'Room occupancy statistics' },
@@ -33,6 +33,16 @@ const reportTypes = [
 
 export default function Reports() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const { data: stats } = useDashboardStats();
+  const { data: students = [] } = useStudents();
+
+  const departmentData = (students as any[]).reduce((acc: any[], s: any) => {
+    const name = s.department || 'Unknown';
+    const existing = acc.find((d) => d.name === name);
+    if (existing) existing.students += 1;
+    else acc.push({ name, students: 1 });
+    return acc;
+  }, []);
 
   useEffect(() => {
     if (containerRef.current) {
@@ -68,10 +78,10 @@ export default function Reports() {
       {/* Summary Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Total Students', value: dashboardStats.totalStudents, icon: Users, color: '#1a56db' },
-          { label: 'Total Rooms', value: dashboardStats.totalRooms, icon: Building2, color: '#059669' },
-          { label: 'Total Revenue', value: `${(dashboardStats.totalRevenue / 1000000).toFixed(1)}M`, icon: CreditCard, color: '#7c3aed' },
-          { label: 'Occupancy Rate', value: `${dashboardStats.occupancyRate}%`, icon: TrendingUp, color: '#d97706' },
+          { label: 'Total Students', value: stats?.totalStudents || 0, icon: Users, color: '#1a56db' },
+          { label: 'Total Rooms', value: stats?.totalRooms || 0, icon: Building2, color: '#059669' },
+          { label: 'Monthly Revenue', value: `${((stats?.monthlyRevenue || 0) / 1000000).toFixed(1)}M`, icon: CreditCard, color: '#7c3aed' },
+          { label: 'Occupancy Rate', value: `${stats?.occupancyRate || 0}%`, icon: TrendingUp, color: '#d97706' },
         ].map((stat, index) => (
           <div key={index} className="report-card bg-white border border-gray-200 p-5">
             <div className="flex items-center gap-3 mb-3">
@@ -97,7 +107,7 @@ export default function Reports() {
             </button>
           </div>
           <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={monthlyRevenueData}>
+            <BarChart data={stats?.revenueData || []}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis dataKey="month" stroke="#6b7280" fontSize={12} tickLine={false} axisLine={false} />
               <YAxis stroke="#6b7280" fontSize={12} tickFormatter={(value) => `${value / 1000000}M`} tickLine={false} axisLine={false} />
@@ -126,7 +136,7 @@ export default function Reports() {
           <ResponsiveContainer width="100%" height={250}>
             <PieChart>
               <Pie
-                data={roomOccupancyData}
+                data={stats?.roomOccupancyData || []}
                 cx="50%"
                 cy="50%"
                 innerRadius={60}
@@ -134,7 +144,7 @@ export default function Reports() {
                 paddingAngle={0}
                 dataKey="value"
               >
-                {roomOccupancyData.map((entry, index) => (
+                {(stats?.roomOccupancyData || []).map((entry: any, index: number) => (
                   <Cell key={`cell-${index}`} fill={entry.color} strokeWidth={0} />
                 ))}
               </Pie>
@@ -148,7 +158,7 @@ export default function Reports() {
             </PieChart>
           </ResponsiveContainer>
           <div className="flex justify-center gap-6 mt-4">
-            {roomOccupancyData.map((item, index) => (
+            {(stats?.roomOccupancyData || []).map((item: any, index: number) => (
               <div key={index} className="flex items-center gap-2">
                 <div className="w-3 h-3" style={{ backgroundColor: item.color }}></div>
                 <span className="text-sm text-gray-600">{item.name}</span>
@@ -226,19 +236,23 @@ export default function Reports() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <div>
             <p className="text-gray-500 text-sm mb-1">Available Rooms</p>
-            <p className="text-2xl font-bold text-emerald-600">{dashboardStats.availableRooms}</p>
+            <p className="text-2xl font-bold text-emerald-600">
+              {(stats?.roomOccupancyData?.find((d: any) => d.name === 'Available')?.value) || 0}
+            </p>
           </div>
           <div>
             <p className="text-gray-500 text-sm mb-1">Occupied Rooms</p>
-            <p className="text-2xl font-bold text-[#1a56db]">{dashboardStats.occupiedRooms}</p>
+            <p className="text-2xl font-bold text-[#1a56db]">
+              {(stats?.roomOccupancyData?.find((d: any) => d.name === 'Occupied')?.value) || 0}
+            </p>
           </div>
           <div>
             <p className="text-gray-500 text-sm mb-1">Pending Payments</p>
-            <p className="text-2xl font-bold text-amber-600">{dashboardStats.pendingPayments}</p>
+            <p className="text-2xl font-bold text-amber-600">-</p>
           </div>
           <div>
             <p className="text-gray-500 text-sm mb-1">Pending Complaints</p>
-            <p className="text-2xl font-bold text-red-600">{dashboardStats.pendingComplaints}</p>
+            <p className="text-2xl font-bold text-red-600">{(stats?.pendingComplaints?.length ?? 0) as any}</p>
           </div>
         </div>
       </div>

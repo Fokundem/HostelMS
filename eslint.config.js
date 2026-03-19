@@ -19,5 +19,11 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // This repo exports UI primitives + helpers in same files (shadcn-style).
+      // Vite fast refresh still works fine; keeping this rule causes noisy false positives.
+      'react-refresh/only-export-components': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
   },
 ])

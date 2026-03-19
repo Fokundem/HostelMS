@@ -2,17 +2,16 @@ import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { gsap } from 'gsap';
-import { Eye, EyeOff, Mail, Lock, UserCircle, Shield, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, Shield, AlertCircle } from 'lucide-react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<'student' | 'admin'>('student');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -37,13 +36,11 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      await login(email, password, role);
-      if (role === 'admin') {
-        navigate('/admin/dashboard');
-      } else {
-        navigate('/student/dashboard');
-      }
-    } catch (err) {
+      await login(email, password);
+      const role = user?.role;
+      if (role === 'admin' || role === 'hostel_manager') navigate('/admin/dashboard');
+      else navigate('/student/dashboard');
+    } catch {
       setError('Invalid email or password. Please try again.');
     } finally {
       setIsLoading(false);
@@ -68,34 +65,6 @@ export default function Login() {
           <span className="text-sm">{error}</span>
         </div>
       )}
-
-      {/* Role Selection */}
-      <div className="grid grid-cols-2 gap-3">
-        <button
-          type="button"
-          onClick={() => setRole('student')}
-          className={`flex items-center justify-center gap-2 px-4 py-3 border-2 transition-all ${
-            role === 'student'
-              ? 'border-[#1a56db] bg-[#1a56db]/5 text-[#1a56db]'
-              : 'border-gray-200 text-gray-600 hover:border-gray-300'
-          }`}
-        >
-          <UserCircle className="w-5 h-5" />
-          Student
-        </button>
-        <button
-          type="button"
-          onClick={() => setRole('admin')}
-          className={`flex items-center justify-center gap-2 px-4 py-3 border-2 transition-all ${
-            role === 'admin'
-              ? 'border-[#1a56db] bg-[#1a56db]/5 text-[#1a56db]'
-              : 'border-gray-200 text-gray-600 hover:border-gray-300'
-          }`}
-        >
-          <Shield className="w-5 h-5" />
-          Admin
-        </button>
-      </div>
 
       {/* Email Field */}
       <div>
@@ -171,18 +140,6 @@ export default function Login() {
         </Link>
       </p>
 
-      {/* Demo Credentials */}
-      <div className="border-t border-gray-200 pt-4 mt-4">
-        <p className="text-xs text-gray-400 text-center mb-3">Demo Credentials</p>
-        <div className="grid grid-cols-2 gap-2 text-xs">
-          <div className="bg-gray-50 border border-gray-200 p-2.5 text-gray-600">
-            <span className="text-[#1a56db] font-medium">Admin:</span> admin@hostel.com
-          </div>
-          <div className="bg-gray-50 border border-gray-200 p-2.5 text-gray-600">
-            <span className="text-[#1a56db] font-medium">Student:</span> student@hostel.com
-          </div>
-        </div>
-      </div>
     </form>
   );
 }

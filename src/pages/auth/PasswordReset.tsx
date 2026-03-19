@@ -36,7 +36,7 @@ export default function PasswordReset() {
     try {
       await resetPassword(email);
       setIsSubmitted(true);
-    } catch (err) {
+    } catch {
       setError('Failed to send reset email. Please try again.');
     } finally {
       setIsLoading(false);

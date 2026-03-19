@@ -114,12 +114,12 @@ export default function Register() {
           level: formData.level,
           matricule: formData.matricule,
           guardianContact: formData.guardianPhone,
-          role: 'student',
+          role: 'STUDENT',
         },
         formData.password
       );
       navigate('/student/dashboard');
-    } catch (err) {
+    } catch {
       setError('Registration failed. Please try again.');
     } finally {
       setIsLoading(false);

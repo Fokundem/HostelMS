@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 import {
   Home,
@@ -11,11 +11,16 @@ import {
   Calendar,
   Plus,
 } from 'lucide-react';
-import { payments, complaints } from '@/data/mockData';
+import { useMyAllocation, useMyComplaints, useMyPayments } from '@/hooks/api';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function StudentDashboard() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [_activeTab, _setActiveTab] = useState('overview');
+  // Tabbed UI can be reintroduced when student sub-pages exist.
+  const { user } = useAuth();
+  const { data: myAllocation } = useMyAllocation();
+  const { data: myPayments = [] } = useMyPayments();
+  const { data: myComplaints = [] } = useMyComplaints();
 
   useEffect(() => {
     if (containerRef.current) {
@@ -28,10 +33,9 @@ export default function StudentDashboard() {
     }
   }, []);
 
-  // Mock student data
-  const studentRoom = 'A12';
-  const studentPayments = payments.filter((p) => p.studentId === '1');
-  const studentComplaints = complaints.filter((c) => c.studentId === '1');
+  const studentRoom = user?.assignedRoom || myAllocation?.room?.roomNumber || '-';
+  const studentPayments = myPayments as any[];
+  const studentComplaints = myComplaints as any[];
   const pendingPayment = studentPayments.find((p) => p.status === 'pending');
   const paidCount = studentPayments.filter((p) => p.status === 'paid').length;
 
@@ -51,7 +55,7 @@ export default function StudentDashboard() {
           { label: 'My Room', value: studentRoom, icon: BedDouble, color: '#1a56db' },
           { label: 'Payments Made', value: paidCount, icon: CheckCircle, color: '#059669' },
           { label: 'Complaints', value: studentComplaints.length, icon: MessageSquare, color: '#d97706' },
-          { label: 'Notifications', value: '3', icon: Bell, color: '#7c3aed' },
+          { label: 'Notifications', value: '-', icon: Bell, color: '#7c3aed' },
         ].map((stat, index) => (
           <div
             key={index}
@@ -88,24 +92,30 @@ export default function StudentDashboard() {
               </div>
               <div>
                 <p className="text-3xl font-bold text-gray-900">{studentRoom}</p>
-                <p className="text-gray-500">Block A, Floor 1</p>
+                <p className="text-gray-500">
+                  {myAllocation?.room ? `Block ${myAllocation.room.block}, Floor ${myAllocation.room.floor}` : 'Not allocated yet'}
+                </p>
               </div>
             </div>
             <div className="space-y-3">
               <div className="flex justify-between p-3 bg-gray-50 border border-gray-200">
                 <span className="text-gray-500">Room Type</span>
-                <span className="text-gray-900 font-medium">4-Bed Shared</span>
+                <span className="text-gray-900 font-medium">
+                  {myAllocation?.room ? `${myAllocation.room.capacity}-Bed Shared` : '-'}
+                </span>
               </div>
               <div className="flex justify-between p-3 bg-gray-50 border border-gray-200">
                 <span className="text-gray-500">Monthly Fee</span>
-                <span className="text-[#1a56db] font-medium">50,000 FCFA</span>
+                <span className="text-[#1a56db] font-medium">
+                  {myAllocation?.room ? `${myAllocation.room.price.toLocaleString()} FCFA` : '-'}
+                </span>
               </div>
             </div>
           </div>
           <div className="mt-6 pt-6 border-t border-gray-200">
             <p className="text-gray-500 text-sm mb-3">Amenities</p>
             <div className="flex flex-wrap gap-2">
-              {['WiFi', 'Fan', 'Desk', 'Wardrobe', 'Shared Bathroom'].map((amenity, index) => (
+              {(myAllocation?.room?.amenities || []).map((amenity: string, index: number) => (
                 <span
                   key={index}
                   className="px-3 py-1 bg-blue-50 text-[#1a56db] text-sm font-medium"

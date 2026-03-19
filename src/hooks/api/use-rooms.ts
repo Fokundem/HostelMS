@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
+import { normalizeStatus } from '@/lib/normalize';
 
 // ============ Room Hooks ============
 
@@ -14,7 +15,11 @@ export const useAvailableRooms = (hostelId?: string, floor?: string) => {
     queryKey: ['availableRooms', hostelId, floor],
     queryFn: async () => {
       const url = queryString ? `/rooms?${queryString}` : '/rooms';
-      return apiClient.get(url);
+      const rows = await apiClient.get(url);
+      return (rows || []).map((r: any) => ({
+        ...r,
+        status: normalizeStatus(r.status),
+      }));
     },
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
@@ -29,7 +34,11 @@ export const useAllRooms = (hostelId?: string) => {
     queryKey: ['allRooms', hostelId],
     queryFn: async () => {
       const url = queryString ? `/rooms/all?${queryString}` : '/rooms/all';
-      return apiClient.get(url);
+      const rows = await apiClient.get(url);
+      return (rows || []).map((r: any) => ({
+        ...r,
+        status: normalizeStatus(r.status),
+      }));
     },
     staleTime: 2 * 60 * 1000,
   });
@@ -53,10 +62,11 @@ export const useCreateRoom = () => {
       hostelId,
       data,
     }: {
-      hostelId: string;
+      hostelId?: string;
       data: any;
     }) => {
-      return apiClient.post(`/rooms?hostel_id=${hostelId}`, data);
+      const url = hostelId ? `/rooms?hostel_id=${hostelId}` : '/rooms';
+      return apiClient.post(url, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['availableRooms'] });

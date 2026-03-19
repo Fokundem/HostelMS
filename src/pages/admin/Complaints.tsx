@@ -14,8 +14,8 @@ import {
   Volume2,
   Sparkles,
 } from 'lucide-react';
-import { complaints } from '@/data/mockData';
 import type { Complaint } from '@/types';
+import { useComplaints, useUpdateComplaint } from '@/hooks/api';
 
 export default function ComplaintsPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -24,7 +24,8 @@ export default function ComplaintsPage() {
   const [selectedComplaint, setSelectedComplaint] = useState<Complaint | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [responseText, setResponseText] = useState('');
-  const [complaintList, setComplaintList] = useState<Complaint[]>(complaints);
+  const { data: complaintList = [] } = useComplaints();
+  const { mutateAsync: updateComplaint } = useUpdateComplaint();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -57,25 +58,14 @@ export default function ComplaintsPage() {
     currentPage * itemsPerPage
   );
 
-  const handleStatusUpdate = (newStatus: Complaint['status']) => {
+  const handleStatusUpdate = async (newStatus: Complaint['status']) => {
     if (selectedComplaint) {
-      setComplaintList(
-        complaintList.map((c) =>
-          c.id === selectedComplaint.id
-            ? {
-                ...c,
-                status: newStatus,
-                resolvedAt: newStatus === 'resolved' ? new Date().toISOString() : c.resolvedAt,
-                adminResponse: responseText || c.adminResponse,
-              }
-            : c
-        )
-      );
-      setSelectedComplaint({
-        ...selectedComplaint,
-        status: newStatus,
-        resolvedAt: newStatus === 'resolved' ? new Date().toISOString() : selectedComplaint.resolvedAt,
-        adminResponse: responseText || selectedComplaint.adminResponse,
+      await updateComplaint({
+        complaintId: selectedComplaint.id,
+        data: {
+          status: newStatus.toUpperCase(),
+          adminResponse: responseText || undefined,
+        },
       });
       setResponseText('');
     }
@@ -123,9 +113,9 @@ export default function ComplaintsPage() {
   };
 
   // Stats
-  const pendingCount = complaintList.filter((c) => c.status === 'pending').length;
-  const inProgressCount = complaintList.filter((c) => c.status === 'in_progress').length;
-  const resolvedCount = complaintList.filter((c) => c.status === 'resolved').length;
+  const pendingCount = (complaintList as Complaint[]).filter((c) => c.status === 'pending').length;
+  const inProgressCount = (complaintList as Complaint[]).filter((c) => c.status === 'in_progress').length;
+  const resolvedCount = (complaintList as Complaint[]).filter((c) => c.status === 'resolved').length;
 
   return (
     <div className="space-y-6">

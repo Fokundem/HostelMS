@@ -18,9 +18,10 @@ export function Footer() {
   const logoRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  if (!footerConfig.logoText && !footerConfig.email && footerConfig.navLinks.length === 0) return null;
+  const shouldRender = !!footerConfig.logoText || !!footerConfig.email || footerConfig.navLinks.length > 0;
 
   useEffect(() => {
+    if (!shouldRender) return;
     const ctx = gsap.context(() => {
       // Logo — scale up + fade
       ScrollTrigger.create({
@@ -52,7 +53,9 @@ export function Footer() {
     }, footerRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [shouldRender]);
+
+  if (!shouldRender) return null;
 
   return (
     <footer
