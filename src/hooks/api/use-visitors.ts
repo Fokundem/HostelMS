@@ -60,8 +60,17 @@ export const useDecideVisitor = () => {
     }) => apiClient.put(`/visitors/${visitorId}/decide`, { status, rejectionReason }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['visitors'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
     },
   });
 };
 
+export const useDeleteVisitor = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (visitorId: string) => apiClient.delete(`/visitors/${visitorId}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['myVisitorRequests'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardStats'] });
+    },
+  });
+};

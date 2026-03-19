@@ -24,6 +24,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { useDashboardStats } from '@/hooks/api';
+import { Link } from 'react-router-dom';
 
 export default function AdminDashboard() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -226,10 +227,10 @@ export default function AdminDashboard() {
         <div className="dashboard-card bg-white border border-gray-200">
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900">Recent Students</h3>
-            <button className="text-[#1a56db] text-sm hover:underline font-medium">View All</button>
+            <Link to="/admin/students" className="text-[#1a56db] text-sm hover:underline font-medium">View All</Link>
           </div>
           <div className="divide-y divide-gray-100">
-            {recentStudents.map((student) => (
+            {recentStudents.map((student: any) => (
               <div key={student.id} className="flex items-center gap-3 p-4 hover:bg-gray-50 transition-colors">
                 <div className="w-10 h-10 bg-[#1a56db] flex items-center justify-center">
                   <span className="text-white font-semibold">{student.name.charAt(0)}</span>
@@ -255,10 +256,10 @@ export default function AdminDashboard() {
         <div className="dashboard-card bg-white border border-gray-200">
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900">Recent Payments</h3>
-            <button className="text-[#1a56db] text-sm hover:underline font-medium">View All</button>
+            <Link to="/admin/payments" className="text-[#1a56db] text-sm hover:underline font-medium">View All</Link>
           </div>
           <div className="divide-y divide-gray-100">
-            {recentPayments.map((payment) => (
+            {recentPayments.map((payment: any) => (
               <div key={payment.id} className="flex items-center gap-3 p-4 hover:bg-gray-50 transition-colors">
                 <div
                   className={`w-10 h-10 flex items-center justify-center ${payment.status === 'paid' ? 'bg-emerald-100' : 'bg-amber-100'
@@ -291,11 +292,11 @@ export default function AdminDashboard() {
         <div className="dashboard-card bg-white border border-gray-200">
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900">Pending Complaints</h3>
-            <button className="text-[#1a56db] text-sm hover:underline font-medium">View All</button>
+            <Link to="/admin/complaints" className="text-[#1a56db] text-sm hover:underline font-medium">View All</Link>
           </div>
           <div className="divide-y divide-gray-100">
             {pendingComplaints.length > 0 ? (
-              pendingComplaints.map((complaint) => (
+              pendingComplaints.map((complaint: any) => (
                 <div key={complaint.id} className="flex items-start gap-3 p-4 hover:bg-gray-50 transition-colors">
                   <div className="w-10 h-10 bg-red-100 flex items-center justify-center flex-shrink-0">
                     <AlertCircle className="w-5 h-5 text-red-600" />

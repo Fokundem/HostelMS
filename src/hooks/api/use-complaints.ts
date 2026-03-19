@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/contexts/AuthContext';
 import { apiClient } from '@/lib/api-client';
 import { normalizeStatus } from '@/lib/normalize';
 
@@ -40,12 +41,15 @@ export const useUpdateComplaint = () => {
 };
 
 export const useMyComplaints = () => {
+  const { user } = useAuth();
   return useQuery({
     queryKey: ['myComplaints'],
     queryFn: async () => {
+      if (!user || user.role !== 'student') return [];
       const rows = await apiClient.get('/complaints/student/mine');
       return (rows || []).map(normalizeComplaint);
     },
+    enabled: !!user && user.role === 'student',
     staleTime: 60 * 1000,
   });
 };

@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
-import { Plus, Save, Users } from 'lucide-react';
-import { useMyVisitorRequests, useRequestVisitor } from '@/hooks/api';
+import { Plus, Save, Users, Trash2 } from 'lucide-react';
+import { useMyVisitorRequests, useRequestVisitor, useDeleteVisitor } from '@/hooks/api';
 
 export default function StudentVisitors() {
   const { data: requests = [] } = useMyVisitorRequests();
   const { mutateAsync: requestVisitor, isPending } = useRequestVisitor();
+  const { mutateAsync: deleteVisitor, isPending: isDeleting } = useDeleteVisitor();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string>('');
   const [form, setForm] = useState({ name: '', phone: '', purpose: '' });
@@ -51,6 +52,7 @@ export default function StudentVisitors() {
                 <th>Phone</th>
                 <th>Purpose</th>
                 <th>Status</th>
+                <th className="text-right">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -60,11 +62,27 @@ export default function StudentVisitors() {
                   <td className="text-gray-600">{r.phone}</td>
                   <td className="text-gray-600">{r.purpose}</td>
                   <td className="text-gray-600">{r.status}</td>
+                  <td className="text-right">
+                    <button
+                      disabled={isDeleting}
+                      onClick={async () => {
+                        try {
+                          await deleteVisitor(r.id);
+                        } catch (e: any) {
+                          alert(e.message || 'Failed to delete visitor');
+                        }
+                      }}
+                      className="p-2 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </td>
                 </tr>
               ))}
               {(requests as any[]).length === 0 && (
                 <tr>
-                  <td colSpan={4} className="text-gray-500 p-6">
+                  <td colSpan={5} className="text-gray-500 p-6">
                     No visitor requests yet.
                   </td>
                 </tr>

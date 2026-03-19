@@ -5,7 +5,7 @@ import { gsap } from 'gsap';
 import { Building2, Shield, Users, CreditCard } from 'lucide-react';
 
 export default function AuthLayout() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, isLoading } = useAuth();
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -18,9 +18,18 @@ export default function AuthLayout() {
     }
   }, []);
 
+  // Wait for auth to load
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-[#1a56db] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   // Redirect if already authenticated
-  if (isAuthenticated) {
-    if (user?.role === 'admin') {
+  if (isAuthenticated && user) {
+    if (user.role === 'admin' || user.role === 'hostel_manager') {
       return <Navigate to="/admin/dashboard" replace />;
     }
     return <Navigate to="/student/dashboard" replace />;

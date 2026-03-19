@@ -114,7 +114,7 @@ export default function Register() {
           level: formData.level,
           matricule: formData.matricule,
           guardianContact: formData.guardianPhone,
-          role: 'STUDENT',
+          role: 'student',
         },
         formData.password
       );

@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/contexts/AuthContext';
 import { apiClient } from '@/lib/api-client';
 import { normalizeStatus } from '@/lib/normalize';
 
@@ -21,11 +22,14 @@ export const useRequestRoom = () => {
 };
 
 export const useMyAllocation = () => {
+  const { user } = useAuth();
   return useQuery({
     queryKey: ['myAllocation'],
     queryFn: async () => {
+      if (!user || user.role !== 'student') return null;
       return apiClient.get('/allocations/student/mine');
     },
+    enabled: !!user && user.role === 'student',
     staleTime: 2 * 60 * 1000,
   });
 };

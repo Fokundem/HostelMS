@@ -1,18 +1,21 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/contexts/AuthContext';
 import { apiClient } from '@/lib/api-client';
 import { monthNumberToName, normalizePaymentType, normalizeStatus } from '@/lib/normalize';
 
 // ============ Payment Hooks ============
 
 export const useMyPayments = () => {
+  const { user } = useAuth();
   return useQuery({
     queryKey: ['myPayments'],
     queryFn: async () => {
+      if (!user || user.role !== 'student') return [];
       const rows = await apiClient.get('/payments/student/my-payments');
       return (rows || []).map((p: any) => ({
         id: p.id,
         studentId: p.studentId,
-        studentName: p.studentName || '', // backend doesn't include; student view doesn't need it
+        studentName: p.studentName || '',
         amount: p.amount,
         status: normalizeStatus(p.status),
         type: normalizePaymentType(p.type),
@@ -27,6 +30,7 @@ export const useMyPayments = () => {
         createdAt: p.createdAt,
       }));
     },
+    enabled: !!user && user.role === 'student',
     staleTime: 2 * 60 * 1000,
   });
 };

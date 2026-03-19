@@ -18,6 +18,7 @@ import StudentRoom from './pages/student/Room';
 import StudentPayments from './pages/student/Payments';
 import StudentComplaints from './pages/student/Complaints';
 import StudentVisitors from './pages/student/Visitors';
+import StudentHostels from './pages/student/Hostels';
 import StudentManagement from './pages/admin/StudentManagement';
 import RoomManagement from './pages/admin/RoomManagement';
 import RoomAllocation from './pages/admin/RoomAllocation';
@@ -55,16 +56,14 @@ function App() {
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<LandingPage />} />
-              
               {/* Auth Routes */}
-              <Route element={<AuthLayout />}>
+              <Route element={<AuthLayout />}> 
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/password-reset" element={<PasswordReset />} />
               </Route>
-
               {/* Admin Routes */}
-              <Route element={<DashboardLayout role="admin" />}>
+              <Route element={<DashboardLayout role="admin" />}> 
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 <Route path="/admin/hostels" element={<Hostels />} />
                 <Route path="/admin/students" element={<StudentManagement />} />
@@ -77,10 +76,10 @@ function App() {
                 <Route path="/admin/profile" element={<Profile />} />
                 <Route path="/admin/notifications" element={<Notifications />} />
               </Route>
-
               {/* Student Routes */}
-              <Route element={<DashboardLayout role="student" />}>
+              <Route element={<DashboardLayout role="student" />}> 
                 <Route path="/student/dashboard" element={<StudentDashboard />} />
+                <Route path="/student/hostels" element={<StudentHostels />} />
                 <Route path="/student/room" element={<StudentRoom />} />
                 <Route path="/student/payments" element={<StudentPayments />} />
                 <Route path="/student/complaints" element={<StudentComplaints />} />
@@ -88,7 +87,6 @@ function App() {
                 <Route path="/student/profile" element={<Profile />} />
                 <Route path="/student/notifications" element={<Notifications />} />
               </Route>
-
               {/* Fallback */}
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>

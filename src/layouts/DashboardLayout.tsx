@@ -40,6 +40,7 @@ const adminNavItems = [
 
 const studentNavItems = [
   { icon: LayoutDashboard, label: 'Dashboard', href: '/student/dashboard' },
+  { icon: Building2, label: 'Hostels', href: '/student/hostels' },
   { icon: BedDouble, label: 'My Room', href: '/student/room' },
   { icon: CreditCard, label: 'Payments', href: '/student/payments' },
   { icon: MessageSquare, label: 'Complaints', href: '/student/complaints' },
@@ -47,7 +48,7 @@ const studentNavItems = [
 ];
 
 export default function DashboardLayout({ role }: DashboardLayoutProps) {
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout, isAuthenticated, isLoading } = useAuth();
   const { unreadCount } = useNotifications();
   const location = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -55,8 +56,12 @@ export default function DashboardLayout({ role }: DashboardLayoutProps) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const navItems = role === 'admin' ? adminNavItems : studentNavItems;
-  const basePath = role === 'admin' ? '/admin' : '/student';
+  // Use authenticated user's role
+  const userRole = user?.role || role;
+  const navItems = userRole === 'admin' ? adminNavItems : studentNavItems;
+  const basePath = userRole === 'admin' ? '/admin' : '/student';
+
+  // Navigation matching is handled below.
 
   useEffect(() => {
     if (contentRef.current) {
@@ -68,13 +73,27 @@ export default function DashboardLayout({ role }: DashboardLayoutProps) {
     }
   }, [location.pathname]);
 
-  // Redirect if not authenticated or wrong role
+  // Wait for auth to load before making routing decisions
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-[#1a56db] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  // Redirect if not authenticated
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  if (user?.role !== role && user?.role !== 'admin' && user?.role !== 'hostel_manager') {
-    return <Navigate to={`/${user?.role?.toLowerCase() || 'student'}/dashboard`} replace />;
+  if (user && role) {
+    const isUserAdmin = user.role === 'admin' || user.role === 'hostel_manager';
+    const isRouteAdmin = role === 'admin';
+    
+    if (isUserAdmin !== isRouteAdmin) {
+      return <Navigate to={isUserAdmin ? '/admin/dashboard' : '/student/dashboard'} replace />;
+    }
   }
 
   return (

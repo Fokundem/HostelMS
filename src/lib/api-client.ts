@@ -48,7 +48,9 @@ const fetchWithAuth = async (
   if (response.status === 401) {
     // Token expired or invalid
     removeAuthToken();
-    window.location.href = '/login';
+    if (window.location.pathname !== '/login') {
+      window.location.href = '/login';
+    }
   }
 
   if (!response.ok) {

@@ -321,9 +321,9 @@ export default function RoomManagement() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: 'Total Rooms', value: roomList.length, color: '#1a56db' },
-          { label: 'Available', value: roomList.filter((r) => r.status === 'available').length, color: '#059669' },
-          { label: 'Occupied', value: roomList.filter((r) => r.status === 'full').length, color: '#dc2626' },
-          { label: 'Maintenance', value: roomList.filter((r) => r.status === 'maintenance').length, color: '#d97706' },
+          { label: 'Available', value: roomList.filter((r: Room) => r.status === 'available').length, color: '#059669' },
+          { label: 'Occupied', value: roomList.filter((r: Room) => r.status === 'full').length, color: '#dc2626' },
+          { label: 'Maintenance', value: roomList.filter((r: Room) => r.status === 'maintenance').length, color: '#d97706' },
         ].map((stat, index) => (
           <div key={index} className="bg-white border border-gray-200 p-4">
             <p className="text-gray-500 text-sm">{stat.label}</p>
@@ -365,7 +365,7 @@ export default function RoomManagement() {
 
       {/* Room Grid */}
       <div ref={gridRef} className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {paginatedRooms.map((room) => (
+        {paginatedRooms.map((room: Room) => (
           <div
             key={room.id}
             className="room-card bg-white border border-gray-200 p-5 hover:shadow-sharp transition-shadow"
@@ -398,7 +398,7 @@ export default function RoomManagement() {
 
             {/* Amenities */}
             <div className="flex flex-wrap gap-2 mb-4">
-              {room.amenities.slice(0, 3).map((amenity, index) => (
+              {room.amenities.slice(0, 3).map((amenity: string, index: number) => (
                 <span
                   key={index}
                   className="px-2 py-1 bg-gray-100 text-gray-600 text-xs"

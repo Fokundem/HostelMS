@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
-import { CreditCard, Plus, Save } from 'lucide-react';
-import { useMyPayments, usePaymentSummary, useSubmitPayment } from '@/hooks/api';
+import { CreditCard, Plus, Save, AlertCircle } from 'lucide-react';
+import { useMyPayments, usePaymentSummary, useSubmitPayment, useMyAllocation } from '@/hooks/api';
 
 export default function StudentPayments() {
   const { data: payments = [] } = useMyPayments();
   const { data: summary } = usePaymentSummary();
+  const { data: allocation } = useMyAllocation();
   const { mutateAsync: submitPayment, isPending } = useSubmitPayment();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string>('');
@@ -141,6 +142,21 @@ export default function StudentPayments() {
         </div>
       </div>
 
+      {(!allocation || allocation.status !== 'APPROVED') && (
+        <div className="bg-red-50 border border-red-200 p-5 flex items-start gap-4">
+          <div className="w-10 h-10 bg-red-100 flex items-center justify-center shrink-0">
+            <AlertCircle className="w-5 h-5 text-red-600" />
+          </div>
+          <div>
+            <p className="text-red-800 font-semibold mb-1">Room Allocation Not Approved</p>
+            <p className="text-red-600 text-sm">
+              You must have an approved room allocation before you can submit payments. 
+              Please request a room or wait for admin approval.
+            </p>
+          </div>
+        </div>
+      )}
+
       {open && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white border border-gray-200 shadow-sharp-lg max-w-lg w-full">
@@ -236,10 +252,10 @@ export default function StudentPayments() {
                 Cancel
               </button>
               <button
-                className="flex-1 btn-primary flex items-center justify-center gap-2 disabled:opacity-50"
-                disabled={!canSubmit || isPending}
+                className="flex-1 btn-primary flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!canSubmit || isPending || !allocation || allocation.status !== 'APPROVED'}
                 onClick={onSubmit}
-                title={!canSubmit ? 'Provide amount, month/year, and proof file.' : undefined}
+                title={!allocation || allocation.status !== 'APPROVED' ? 'Room allocation must be approved' : !canSubmit ? 'Provide amount, month/year, and proof file.' : undefined}
               >
                 <Save className="w-4 h-4" />
                 {isPending ? 'Submitting…' : 'Submit'}

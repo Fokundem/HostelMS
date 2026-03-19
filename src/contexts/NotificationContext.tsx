@@ -1,12 +1,15 @@
 import React, { createContext, useContext, useMemo } from 'react';
 import type { NotificationContextType } from '@/types';
 import { useDeleteNotification, useMarkAllNotificationsRead, useMarkNotificationRead, useMyNotifications } from '@/hooks/api';
-import { useAuth } from '@/contexts/AuthContext';
+// Removed useAuth to avoid circular import
+
+import { getAuthToken } from '@/lib/api-client';
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 export function NotificationProvider({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuth();
+  // Only fetch notifications if user has a token
+  const isAuthenticated = !!getAuthToken();
   const { data: notifications = [] } = useMyNotifications(false, { enabled: isAuthenticated });
   const unreadCount = useMemo(() => notifications.filter((n: any) => !n.read).length, [notifications]);
 
@@ -30,10 +33,10 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   );
 }
 
-export function useNotifications() {
+export const useNotifications = () => {
   const context = useContext(NotificationContext);
   if (context === undefined) {
     throw new Error('useNotifications must be used within a NotificationProvider');
   }
   return context;
-}
+};

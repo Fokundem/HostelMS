@@ -32,7 +32,7 @@ export default function VisitorManagement() {
   }, []);
 
   // Filter visitors
-  const filteredVisitors = visitorList.filter((visitor) => {
+  const filteredVisitors = visitorList.filter((visitor: Visitor) => {
     const matchesSearch =
       visitor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       visitor.studentName.toLowerCase().includes(searchQuery.toLowerCase());
@@ -148,7 +148,7 @@ export default function VisitorManagement() {
               </tr>
             </thead>
             <tbody>
-              {paginatedVisitors.map((visitor) => (
+              {paginatedVisitors.map((visitor: Visitor) => (
                 <tr key={visitor.id}>
                   <td>
                     <div className="flex items-center gap-3">

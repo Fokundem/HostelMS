@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useMyAllocation, useMyComplaints, useMyPayments } from '@/hooks/api';
 import { useAuth } from '@/contexts/AuthContext';
+import { Link } from 'react-router-dom';
 
 export default function StudentDashboard() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -142,9 +143,9 @@ export default function StudentDashboard() {
               <p className="text-gray-500 text-sm mb-4">
                 Due by {pendingPayment.month} {pendingPayment.year}
               </p>
-              <button className="w-full btn-primary">
+              <Link to="/student/payments" className="block w-fullbtn-primary text-center">
                 Pay Now
-              </button>
+              </Link>
             </div>
           ) : (
             <div className="text-center py-4">
@@ -164,7 +165,7 @@ export default function StudentDashboard() {
         <div className="dashboard-card bg-white border border-gray-200">
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900">Payment History</h3>
-            <button className="text-[#1a56db] text-sm hover:underline font-medium">View All</button>
+            <Link to="/student/payments" className="text-[#1a56db] text-sm hover:underline font-medium">View All</Link>
           </div>
           <div className="divide-y divide-gray-100">
             {studentPayments.slice(0, 3).map((payment) => (
@@ -203,10 +204,10 @@ export default function StudentDashboard() {
         <div className="dashboard-card bg-white border border-gray-200">
           <div className="flex items-center justify-between p-4 border-b border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900">My Complaints</h3>
-            <button className="text-[#1a56db] text-sm hover:underline font-medium flex items-center gap-1">
+            <Link to="/student/complaints" className="text-[#1a56db] text-sm hover:underline font-medium flex items-center gap-1">
               <Plus className="w-4 h-4" />
               New
-            </button>
+            </Link>
           </div>
           <div className="divide-y divide-gray-100">
             {studentComplaints.length > 0 ? (
@@ -262,26 +263,26 @@ export default function StudentDashboard() {
       <div className="dashboard-card bg-gradient-to-r from-blue-50 to-white border border-blue-200 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
         <div className="grid sm:grid-cols-3 gap-4">
-          <button className="flex items-center gap-3 p-4 bg-white border border-gray-200 hover:shadow-sharp transition-shadow text-left">
-            <div className="w-10 h-10 bg-[#1a56db] flex items-center justify-center">
+          <Link to="/student/payments" className="flex items-center gap-3 p-4 bg-white border border-gray-200 hover:shadow-sharp transition-shadow text-left">
+            <div className="w-10 h-10 bg-[#1a56db] flex items-center justify-center shrink-0">
               <CreditCard className="w-5 h-5 text-white" />
             </div>
             <div>
               <p className="text-gray-900 font-medium">Make Payment</p>
               <p className="text-gray-500 text-sm">Pay hostel fees</p>
             </div>
-          </button>
-          <button className="flex items-center gap-3 p-4 bg-white border border-gray-200 hover:shadow-sharp transition-shadow text-left">
-            <div className="w-10 h-10 bg-[#1a56db] flex items-center justify-center">
+          </Link>
+          <Link to="/student/complaints" className="flex items-center gap-3 p-4 bg-white border border-gray-200 hover:shadow-sharp transition-shadow text-left">
+            <div className="w-10 h-10 bg-[#1a56db] flex items-center justify-center shrink-0">
               <MessageSquare className="w-5 h-5 text-white" />
             </div>
             <div>
               <p className="text-gray-900 font-medium">Submit Complaint</p>
               <p className="text-gray-500 text-sm">Report an issue</p>
             </div>
-          </button>
+          </Link>
           <button className="flex items-center gap-3 p-4 bg-white border border-gray-200 hover:shadow-sharp transition-shadow text-left">
-            <div className="w-10 h-10 bg-[#1a56db] flex items-center justify-center">
+            <div className="w-10 h-10 bg-[#1a56db] flex items-center justify-center shrink-0">
               <Calendar className="w-5 h-5 text-white" />
             </div>
             <div>
