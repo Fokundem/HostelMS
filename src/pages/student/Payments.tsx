@@ -8,6 +8,7 @@ export default function StudentPayments() {
   const { data: allocation } = useMyAllocation();
   const { mutateAsync: submitPayment, isPending } = useSubmitPayment();
   const [open, setOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [error, setError] = useState<string>('');
   const [form, setForm] = useState({
     amount: '',
@@ -109,7 +110,7 @@ export default function StudentPayments() {
                           src={`http://localhost:8000${p.proofImageUrl}`}
                           alt="Proof"
                           className="w-20 h-20 object-cover rounded border border-gray-200 cursor-pointer hover:opacity-80 transition-opacity"
-                          onClick={() => window.open(`http://localhost:8000${p.proofImageUrl}`, '_blank')}
+                          onClick={() => setPreviewImage(`http://localhost:8000${p.proofImageUrl}`)}
                         />
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
                           <span className="bg-black/50 text-white text-[10px] px-1 rounded">Click to enlarge</span>
@@ -156,6 +157,43 @@ export default function StudentPayments() {
               You must have an approved room allocation before you can submit payments. 
               Please request a room or wait for admin approval.
             </p>
+          </div>
+        </div>
+      )}
+
+      {/* Proof Preview Modal */}
+      {previewImage && (
+        <div 
+          className="fixed inset-0 bg-black/60 flex items-center justify-center z-[100] p-4 animate-in fade-in duration-200"
+          onClick={() => setPreviewImage(null)}
+        >
+          <div 
+            className="bg-white p-2 border border-gray-200 shadow-sharp-lg relative"
+            onClick={e => e.stopPropagation()}
+          >
+            <button 
+              onClick={() => setPreviewImage(null)}
+              className="absolute -top-10 right-0 text-white font-medium hover:text-gray-300 transition-colors"
+            >
+              Close [×]
+            </button>
+            <div className="overflow-hidden bg-gray-50 flex items-center justify-center" style={{ maxWidth: '500px', maxHeight: '500px' }}>
+              <img
+                src={previewImage}
+                alt="Payment Proof Preview"
+                className="w-auto h-auto max-w-full max-h-full object-contain shadow-inner"
+              />
+            </div>
+            <div className="mt-2 text-center">
+              <a 
+                href={previewImage} 
+                target="_blank" 
+                rel="noreferrer"
+                className="text-[#1a56db] text-sm hover:underline font-medium"
+              >
+                View full resolution in new tab
+              </a>
+            </div>
           </div>
         </div>
       )}

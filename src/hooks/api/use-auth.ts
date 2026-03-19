@@ -65,3 +65,19 @@ export const useUpdateProfile = () => {
     },
   });
 };
+
+export const useVerifyEmail = () => {
+  return useMutation({
+    mutationFn: async (email: string) => {
+      return apiClient.post('/auth/verify-email', { email });
+    },
+  });
+};
+
+export const useResetPassword = () => {
+  return useMutation({
+    mutationFn: async (data: { email: string; new_password: string }) => {
+      return apiClient.post('/auth/reset-password', data);
+    },
+  });
+};

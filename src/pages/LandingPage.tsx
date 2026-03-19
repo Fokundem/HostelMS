@@ -16,6 +16,10 @@ import {
   Zap,
   Menu,
   X,
+  Bed,
+  Wifi,
+  ShieldCheck,
+  Sparkles,
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -66,6 +70,14 @@ export default function LandingPage() {
   const heroRef = useRef<HTMLDivElement>(null);
   const featuresRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
+
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    setIsMobileMenuOpen(false);
+  };
 
   useEffect(() => {
     // Hero Animation
@@ -140,9 +152,9 @@ export default function LandingPage() {
             
             {/* Desktop Nav */}
             <div className="hidden md:flex items-center gap-8">
-              <Link to="#features" className="text-gray-600 hover:text-gray-900 transition-colors">Features</Link>
-              <Link to="#stats" className="text-gray-600 hover:text-gray-900 transition-colors">Stats</Link>
-              <Link to="#security" className="text-gray-600 hover:text-gray-900 transition-colors">Security</Link>
+              <button onClick={() => scrollToSection('features')} className="text-gray-600 hover:text-gray-900 transition-colors">Features</button>
+              <button onClick={() => scrollToSection('stats')} className="text-gray-600 hover:text-gray-900 transition-colors">Stats</button>
+              <button onClick={() => scrollToSection('security')} className="text-gray-600 hover:text-gray-900 transition-colors">Security</button>
             </div>
             
             <div className="hidden md:flex items-center gap-4">
@@ -174,9 +186,9 @@ export default function LandingPage() {
         {isMobileMenuOpen && (
           <div className="md:hidden bg-white border-t border-gray-200">
             <div className="px-4 py-4 space-y-3">
-              <Link to="#features" className="block text-gray-600 py-2">Features</Link>
-              <Link to="#stats" className="block text-gray-600 py-2">Stats</Link>
-              <Link to="#security" className="block text-gray-600 py-2">Security</Link>
+              <button onClick={() => scrollToSection('features')} className="block text-gray-600 py-2 w-full text-left">Features</button>
+              <button onClick={() => scrollToSection('stats')} className="block text-gray-600 py-2 w-full text-left">Stats</button>
+              <button onClick={() => scrollToSection('security')} className="block text-gray-600 py-2 w-full text-left">Security</button>
               <hr className="border-gray-200" />
               <Link to="/login" className="block text-gray-600 py-2">Sign In</Link>
               <Link to="/register" className="block bg-[#1a56db] text-white px-4 py-2 text-center">Get Started</Link>
@@ -220,44 +232,113 @@ export default function LandingPage() {
               </div>
             </div>
 
-            {/* Hero Dashboard Preview */}
+            {/* Hero Image */}
             <div className="hero-animate">
-              <div className="bg-white border border-gray-200 shadow-sharp-lg p-2">
-                <div className="border border-gray-200">
-                  {/* Mock Dashboard Header */}
-                  <div className="h-12 bg-gray-50 border-b border-gray-200 flex items-center px-4 gap-2">
-                    <div className="flex gap-1.5">
-                      <div className="w-3 h-3 bg-red-400"></div>
-                      <div className="w-3 h-3 bg-amber-400"></div>
-                      <div className="w-3 h-3 bg-emerald-400"></div>
-                    </div>
-                    <div className="flex-1 text-center text-sm text-gray-400">Admin Dashboard</div>
-                  </div>
-                  {/* Mock Dashboard Content */}
-                  <div className="p-6 bg-white">
-                    <div className="grid grid-cols-2 gap-4 mb-6">
-                      {[
-                        { label: 'Total Students', value: '320', color: 'bg-[#1a56db]' },
-                        { label: 'Rooms', value: '120', color: 'bg-emerald-500' },
-                        { label: 'Revenue', value: '9M FCFA', color: 'bg-violet-500' },
-                        { label: 'Complaints', value: '5', color: 'bg-amber-500' },
-                      ].map((stat, index) => (
-                        <div key={index} className="bg-gray-50 border border-gray-200 p-4">
-                          <div className={`w-2 h-2 ${stat.color} mb-2`}></div>
-                          <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                          <p className="text-xs text-gray-500">{stat.label}</p>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="h-32 bg-gray-50 border border-gray-200 flex items-end p-4 gap-2">
-                      {[40, 65, 45, 80, 55, 70, 90].map((h, i) => (
-                        <div key={i} className="flex-1 bg-[#1a56db]" style={{ height: `${h}%` }}></div>
-                      ))}
-                    </div>
+              <div className="relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-[#1a56db] to-[#7c3aed] opacity-20 blur-lg group-hover:opacity-30 transition-opacity duration-500"></div>
+                <div className="relative bg-white border border-gray-200 shadow-sharp-lg p-2">
+                  <img
+                    src="/images/hostel-exterior.png"
+                    alt="Modern university hostel building exterior"
+                    className="w-full h-auto object-cover"
+                    style={{ aspectRatio: '1/1' }}
+                  />
+                  <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-sm border border-gray-200 px-4 py-3">
+                    <p className="text-sm font-semibold text-gray-900">🏠 Modern Hostel Facilities</p>
+                    <p className="text-xs text-gray-500">State-of-the-art student accommodation</p>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Hostel Gallery Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-14">
+            <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 px-3 py-1.5 mb-6">
+              <Building2 className="w-4 h-4 text-[#1a56db]" />
+              <span className="text-sm text-[#1a56db] font-medium">Our Facilities</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+              Experience Premium Living
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Modern, comfortable, and secure hostel spaces designed for academic 
+              success and student well-being.
+            </p>
+          </div>
+
+          {/* Bento Grid Gallery */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Large Featured Image */}
+            <div className="lg:col-span-2 lg:row-span-2 relative group overflow-hidden border border-gray-200">
+              <img
+                src="/images/hostel-exterior.png"
+                alt="Hostel building exterior"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                style={{ minHeight: '400px' }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+              <div className="absolute bottom-0 left-0 right-0 p-6">
+                <span className="inline-block bg-[#1a56db] text-white text-xs font-semibold px-3 py-1 mb-3">BUILDING</span>
+                <h3 className="text-2xl font-bold text-white mb-1">Modern Architecture</h3>
+                <p className="text-white/80 text-sm">Contemporary design with top-tier amenities and landscaped surroundings</p>
+              </div>
+            </div>
+
+            {/* Room Image */}
+            <div className="relative group overflow-hidden border border-gray-200">
+              <img
+                src="/images/hostel-room.png"
+                alt="Comfortable hostel room"
+                className="w-full h-64 object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+              <div className="absolute bottom-0 left-0 right-0 p-4">
+                <span className="inline-block bg-emerald-500 text-white text-xs font-semibold px-3 py-1 mb-2">ROOMS</span>
+                <h3 className="text-lg font-bold text-white">Comfortable Rooms</h3>
+                <p className="text-white/80 text-xs">Fully furnished with study desks & storage</p>
+              </div>
+            </div>
+
+            {/* Common Area Image */}
+            <div className="relative group overflow-hidden border border-gray-200">
+              <img
+                src="https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800&q=80&auto=format"
+                alt="Hostel common area and lounge"
+                className="w-full h-64 object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+              <div className="absolute bottom-0 left-0 right-0 p-4">
+                <span className="inline-block bg-violet-500 text-white text-xs font-semibold px-3 py-1 mb-2">LOUNGE</span>
+                <h3 className="text-lg font-bold text-white">Common Areas</h3>
+                <p className="text-white/80 text-xs">Social spaces for relaxation & collaboration</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Stats Bar */}
+          <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+            {[
+              { icon: Bed, label: 'Single & Double Rooms', value: '120+', color: 'text-[#1a56db]' },
+              { icon: Wifi, label: 'Free Wi-Fi', value: '24/7', color: 'text-emerald-500' },
+              { icon: ShieldCheck, label: 'Security', value: 'CCTV', color: 'text-violet-500' },
+              { icon: Sparkles, label: 'Housekeeping', value: 'Daily', color: 'text-amber-500' },
+            ].map((item, index) => (
+              <div
+                key={index}
+                className="bg-gray-50 border border-gray-200 p-4 text-center hover:border-[#1a56db] hover:bg-blue-50/50 transition-all duration-300"
+              >
+                <div className="flex justify-center mb-2">
+                  <item.icon className={`w-7 h-7 ${item.color}`} />
+                </div>
+                <p className="text-xl font-bold text-gray-900">{item.value}</p>
+                <p className="text-xs text-gray-500 mt-1">{item.label}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>

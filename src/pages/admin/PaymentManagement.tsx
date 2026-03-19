@@ -246,8 +246,8 @@ export default function PaymentManagement() {
       {/* Receipt Modal */}
       {isReceiptModalOpen && selectedPayment && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white border border-gray-200 shadow-sharp-lg max-w-md w-full">
-            <div className="p-6 border-b border-gray-200">
+          <div className="bg-white border border-gray-200 shadow-sharp-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-4 border-b border-gray-200 sticky top-0 bg-white z-10">
               <div className="text-center">
                 <div className="w-16 h-16 bg-blue-50 flex items-center justify-center mx-auto mb-4">
                   <Receipt className="w-8 h-8 text-[#1a56db]" />

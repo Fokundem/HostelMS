@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useLogin, useRegister, useCurrentUser, useLogout } from '@/hooks/api';
 import type { User, AuthContextType } from '@/types';
-import { getAuthToken, removeAuthToken } from '@/lib/api-client';
+import { getAuthToken, removeAuthToken, apiClient } from '@/lib/api-client';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -119,8 +119,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const resetPassword = async (email: string) => {
-    // TODO: Implement password reset when backend endpoint is available
-    console.log('Password reset requested for:', email);
+    await apiClient.post('/auth/verify-email', { email });
   };
 
   return (
