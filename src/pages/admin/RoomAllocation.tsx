@@ -46,7 +46,7 @@ export default function RoomAllocation() {
   }, []);
 
   // Filter allocations
-  const filteredAllocations = allocationList.filter((allocation) => {
+  const filteredAllocations = allocationList.filter((allocation: any) => {
     const studentName = allocation.student?.name || '';
     const roomNumber = allocation.room?.roomNumber || '';
     const matchesSearch =
@@ -199,7 +199,7 @@ export default function RoomAllocation() {
                   </td>
                 </tr>
               )}
-              {!allocationsLoading && paginatedAllocations.map((allocation) => (
+              {!allocationsLoading && paginatedAllocations.map((allocation: any) => (
                 <tr key={allocation.id}>
                   <td>
                     <div className="flex items-center gap-3">

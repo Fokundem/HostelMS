@@ -42,7 +42,7 @@ export default function ComplaintsPage() {
   }, []);
 
   // Filter complaints
-  const filteredComplaints = complaintList.filter((complaint) => {
+  const filteredComplaints = complaintList.filter((complaint: any) => {
     const matchesSearch =
       complaint.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       complaint.studentName.toLowerCase().includes(searchQuery.toLowerCase());
@@ -204,7 +204,7 @@ export default function ComplaintsPage() {
               </tr>
             </thead>
             <tbody>
-              {paginatedComplaints.map((complaint) => (
+              {paginatedComplaints.map((complaint: any) => (
                 <tr key={complaint.id}>
                   <td>
                     <div>

@@ -1,4 +1,3 @@
-import React from 'react';
 import { useMyPayments, usePaymentSummary } from '@/hooks/api';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';

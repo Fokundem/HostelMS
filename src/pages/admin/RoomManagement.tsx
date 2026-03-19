@@ -72,7 +72,7 @@ export default function RoomManagement() {
   }, []);
 
   // Filter rooms
-  const filteredRooms = roomList.filter((room) => {
+  const filteredRooms = roomList.filter((room: any) => {
     const matchesSearch =
       room.roomNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
       room.block.toLowerCase().includes(searchQuery.toLowerCase());

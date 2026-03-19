@@ -315,7 +315,7 @@ export const visitors: Visitor[] = [
     purpose: 'Family Visit',
     entryTime: '2024-03-10T10:00:00',
     exitTime: '2024-03-10T14:00:00',
-    status: 'out',
+    status: 'approved',
   },
   {
     id: '2',
@@ -326,7 +326,7 @@ export const visitors: Visitor[] = [
     roomNumber: 'A12',
     purpose: 'Family Visit',
     entryTime: '2024-03-10T15:00:00',
-    status: 'in',
+    status: 'approved',
   },
   {
     id: '3',
@@ -338,7 +338,7 @@ export const visitors: Visitor[] = [
     purpose: 'Academic Meeting',
     entryTime: '2024-03-10T09:00:00',
     exitTime: '2024-03-10T11:00:00',
-    status: 'out',
+    status: 'approved',
   },
 ];
 
