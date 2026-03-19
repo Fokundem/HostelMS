@@ -47,9 +47,11 @@ export default function RoomAllocation() {
 
   // Filter allocations
   const filteredAllocations = allocationList.filter((allocation) => {
+    const studentName = allocation.student?.name || '';
+    const roomNumber = allocation.room?.roomNumber || '';
     const matchesSearch =
-      allocation.studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      allocation.roomNumber.toLowerCase().includes(searchQuery.toLowerCase());
+      studentName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      roomNumber.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = filterStatus === 'all' || allocation.status === filterStatus;
     return matchesSearch && matchesStatus;
   });
@@ -202,10 +204,10 @@ export default function RoomAllocation() {
                   <td>
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-[#1a56db] flex items-center justify-center">
-                        <span className="text-white font-semibold">{allocation.studentName.charAt(0)}</span>
+                        <span className="text-white font-semibold">{(allocation.student?.name || '').charAt(0)}</span>
                       </div>
                       <div>
-                        <p className="text-gray-900 font-medium">{allocation.studentName}</p>
+                        <p className="text-gray-900 font-medium">{allocation.student?.name || ''}</p>
                         <p className="text-gray-500 text-sm">ID: {allocation.studentId}</p>
                       </div>
                     </div>
@@ -213,7 +215,7 @@ export default function RoomAllocation() {
                   <td>
                     <div className="flex items-center gap-2">
                       <BedDouble className="w-4 h-4 text-[#1a56db]" />
-                      <span className="text-gray-900">Room {allocation.roomNumber}</span>
+                      <span className="text-gray-900">Room {allocation.room?.roomNumber || ''}</span>
                     </div>
                   </td>
                   <td className="text-gray-600">
@@ -248,7 +250,7 @@ export default function RoomAllocation() {
                     {allocation.status === 'approved' && (
                       <div className="text-right text-sm text-gray-500">
                         <p>Approved on {new Date(allocation.approvedAt!).toLocaleDateString()}</p>
-                        <p>by {allocation.approvedBy}</p>
+                        <p>by {allocation.approvedByName || allocation.approvedBy || 'Unknown'}</p>
                       </div>
                     )}
                   </td>
