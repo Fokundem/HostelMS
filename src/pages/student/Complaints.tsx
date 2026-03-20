@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { MessageSquare, Plus, Save } from 'lucide-react';
 import { useCreateComplaint, useMyComplaints } from '@/hooks/api';
+import { toast } from 'sonner';
 
 export default function StudentComplaints() {
   const { data: complaints = [] } = useMyComplaints();
@@ -29,10 +30,13 @@ export default function StudentComplaints() {
         category: form.category,
         priority: form.priority,
       });
+      toast.success('Complaint submitted successfully!');
       setForm({ title: '', description: '', category: 'OTHER', priority: 'MEDIUM' });
       setOpen(false);
     } catch (e: any) {
-      setError(e?.message || 'Failed to submit complaint');
+      const msg = e?.message || 'Failed to submit complaint';
+      setError(msg);
+      toast.error(msg);
     }
   };
 

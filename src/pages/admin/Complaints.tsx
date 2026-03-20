@@ -14,6 +14,7 @@ import {
   Volume2,
   Sparkles,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import type { Complaint } from '@/types';
 import { useComplaints, useUpdateComplaint } from '@/hooks/api';
 
@@ -60,14 +61,19 @@ export default function ComplaintsPage() {
 
   const handleStatusUpdate = async (newStatus: Complaint['status']) => {
     if (selectedComplaint) {
-      await updateComplaint({
-        complaintId: selectedComplaint.id,
-        data: {
-          status: newStatus.toUpperCase(),
-          adminResponse: responseText || undefined,
-        },
-      });
-      setResponseText('');
+      try {
+        await updateComplaint({
+          complaintId: selectedComplaint.id,
+          data: {
+            status: newStatus.toUpperCase(),
+            adminResponse: responseText || undefined,
+          },
+        });
+        toast.success(`Complaint marked as ${newStatus.replace('_', ' ')}`);
+        setResponseText('');
+      } catch (e: any) {
+        toast.error(e?.message || 'Failed to update complaint');
+      }
     }
   };
 

@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { CreditCard, Plus, Save, AlertCircle } from 'lucide-react';
 import { useMyPayments, usePaymentSummary, useSubmitPayment, useMyAllocation } from '@/hooks/api';
+import { getFullImageUrl } from '@/lib/normalize';
+import { toast } from 'sonner';
 
 export default function StudentPayments() {
   const { data: payments = [] } = useMyPayments();
@@ -36,6 +38,7 @@ export default function StudentPayments() {
       fd.append('method', form.method);
       if (form.proof) fd.append('proof', form.proof);
       await submitPayment(fd);
+      toast.success('Payment proof submitted successfully! Waiting for admin review.');
       setOpen(false);
       setForm({
         amount: '',
@@ -46,7 +49,9 @@ export default function StudentPayments() {
         proof: null,
       });
     } catch (e: any) {
-      setError(e?.message || 'Failed to submit payment');
+      const msg = e?.message || 'Failed to submit payment';
+      setError(msg);
+      toast.error(msg);
     }
   };
 
@@ -107,10 +112,10 @@ export default function StudentPayments() {
                     {p.proofImageUrl ? (
                       <div className="group relative">
                         <img
-                          src={`http://localhost:8000${p.proofImageUrl}`}
+                          src={getFullImageUrl(p.proofImageUrl)}
                           alt="Proof"
                           className="w-20 h-20 object-cover rounded border border-gray-200 cursor-pointer hover:opacity-80 transition-opacity"
-                          onClick={() => setPreviewImage(`http://localhost:8000${p.proofImageUrl}`)}
+                          onClick={() => setPreviewImage(getFullImageUrl(p.proofImageUrl))}
                         />
                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
                           <span className="bg-black/50 text-white text-[10px] px-1 rounded">Click to enlarge</span>

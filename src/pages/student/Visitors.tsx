@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Plus, Save, Users, Trash2 } from 'lucide-react';
 import { useMyVisitorRequests, useRequestVisitor, useDeleteVisitor } from '@/hooks/api';
+import { toast } from 'sonner';
 
 export default function StudentVisitors() {
   const { data: requests = [] } = useMyVisitorRequests();
@@ -23,10 +24,13 @@ export default function StudentVisitors() {
         phone: form.phone.trim(),
         purpose: form.purpose.trim(),
       });
+      toast.success('Visitor request submitted!');
       setForm({ name: '', phone: '', purpose: '' });
       setOpen(false);
     } catch (e: any) {
-      setError(e?.message || 'Failed to submit visitor request');
+      const msg = e?.message || 'Failed to submit visitor request';
+      setError(msg);
+      toast.error(msg);
     }
   };
 
@@ -68,8 +72,9 @@ export default function StudentVisitors() {
                       onClick={async () => {
                         try {
                           await deleteVisitor(r.id);
+                          toast.success('Visitor request removed');
                         } catch (e: any) {
-                          alert(e.message || 'Failed to delete visitor');
+                          toast.error(e.message || 'Failed to delete visitor');
                         }
                       }}
                       className="p-2 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50"

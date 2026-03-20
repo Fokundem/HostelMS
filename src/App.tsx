@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'sonner';
 
 // Layouts
 import DashboardLayout from './layouts/DashboardLayout';
@@ -50,6 +51,7 @@ gsap.registerPlugin(ScrollTrigger);
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      <Toaster position="top-right" richColors closeButton />
       <AuthProvider>
         <NotificationProvider>
           <Router>

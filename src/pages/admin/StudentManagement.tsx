@@ -19,6 +19,7 @@ import {
   Save,
   Lock,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import type { Student } from '@/types';
 import { useCreateStudent, useDeleteStudent, useStudents, useUpdateStudent } from '@/hooks/api';
 
@@ -81,44 +82,59 @@ export default function StudentManagement() {
   );
 
   const handleAdd = async () => {
-    await createStudent({
-      name: formData.name,
-      email: formData.email,
-      password: formData.password,
-      matricule: formData.matricule,
-      department: formData.department,
-      level: formData.level,
-      phone: formData.phone || undefined,
-      guardianContact: formData.guardianContact || undefined,
-    });
-    setIsAddModalOpen(false);
-    resetForm();
+    try {
+      await createStudent({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        matricule: formData.matricule,
+        department: formData.department,
+        level: formData.level,
+        phone: formData.phone || undefined,
+        guardianContact: formData.guardianContact || undefined,
+      });
+      toast.success('Student created successfully');
+      setIsAddModalOpen(false);
+      resetForm();
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to create student');
+    }
   };
 
   const handleEdit = async () => {
     if (selectedStudent) {
-      await updateStudent({
-        studentId: selectedStudent.id,
-        data: {
-          name: formData.name,
-          phone: formData.phone || undefined,
-          guardianContact: formData.guardianContact || undefined,
-          department: formData.department,
-          level: formData.level,
-          status: formData.status.toUpperCase(),
-          role: formData.role.toUpperCase(),
-        },
-      });
-      setIsEditModalOpen(false);
-      setSelectedStudent(null);
+      try {
+        await updateStudent({
+          studentId: selectedStudent.id,
+          data: {
+            name: formData.name,
+            phone: formData.phone || undefined,
+            guardianContact: formData.guardianContact || undefined,
+            department: formData.department,
+            level: formData.level,
+            status: formData.status.toUpperCase(),
+            role: formData.role.toUpperCase(),
+          },
+        });
+        toast.success('Student updated successfully');
+        setIsEditModalOpen(false);
+        setSelectedStudent(null);
+      } catch (e: any) {
+        toast.error(e?.message || 'Failed to update student');
+      }
     }
   };
 
   const handleDelete = async () => {
     if (selectedStudent) {
-      await deleteStudent(selectedStudent.id);
-      setIsDeleteModalOpen(false);
-      setSelectedStudent(null);
+      try {
+        await deleteStudent(selectedStudent.id);
+        toast.success('Student deleted successfully');
+        setIsDeleteModalOpen(false);
+        setSelectedStudent(null);
+      } catch (e: any) {
+        toast.error(e?.message || 'Failed to delete student');
+      }
     }
   };
 

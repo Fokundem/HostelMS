@@ -8,6 +8,7 @@ import {
   LogIn,
   Calendar,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import type { Visitor } from '@/types';
 import { useDecideVisitor, useVisitors } from '@/hooks/api';
 
@@ -48,11 +49,16 @@ export default function VisitorManagement() {
   );
 
   const handleDecide = async (visitorId: string, status: 'APPROVED' | 'REJECTED') => {
-    await decideVisitor({
-      visitorId,
-      status,
-      rejectionReason: status === 'REJECTED' ? 'Rejected' : undefined,
-    });
+    try {
+      await decideVisitor({
+        visitorId,
+        status,
+        rejectionReason: status === 'REJECTED' ? 'Rejected' : undefined,
+      });
+      toast.success(`Visitor request ${status.toLowerCase()} successfuly`);
+    } catch (e: any) {
+      toast.error(e?.message || `Failed to ${status.toLowerCase()} visitor`);
+    }
   };
 
   const getStatusBadge = (status: string) => {

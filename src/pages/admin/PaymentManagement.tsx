@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import type { Payment } from '@/types';
 import { useAllPayments, useDashboardStats, useReviewPayment } from '@/hooks/api';
+import { getFullImageUrl } from '@/lib/normalize';
+import { toast } from 'sonner';
 
 export default function PaymentManagement() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -295,13 +297,13 @@ export default function PaymentManagement() {
                 {(selectedPayment as any).proofImageUrl ? (
                   <div className="space-y-2">
                     <img
-                      src={`http://localhost:8000${(selectedPayment as any).proofImageUrl}`}
+                      src={getFullImageUrl((selectedPayment as any).proofImageUrl)}
                       alt="Payment Proof"
-                      className="w-full max-h-48 object-contain rounded border border-gray-200 shadow-sm"
+                      className="w-full max-h-64 object-contain rounded border border-gray-200 shadow-sm"
                     />
                     <a
                       className="inline-block text-[#1a56db] text-sm hover:underline font-medium"
-                      href={`http://localhost:8000${(selectedPayment as any).proofImageUrl}`}
+                      href={getFullImageUrl((selectedPayment as any).proofImageUrl)}
                       target="_blank"
                       rel="noreferrer"
                     >
@@ -339,9 +341,12 @@ export default function PaymentManagement() {
                           status: 'REJECTED',
                           rejectionReason: 'Rejected',
                         });
+                        toast.error('Payment rejected');
                         setIsReceiptModalOpen(false);
                       } catch (e: any) {
-                        setReviewError(e?.message || 'Failed to reject payment');
+                        const msg = e?.message || 'Failed to reject payment';
+                        setReviewError(msg);
+                        toast.error(msg);
                       }
                     }}
                   >
@@ -354,9 +359,12 @@ export default function PaymentManagement() {
                       try {
                         setReviewError('');
                         await reviewPayment({ paymentId: selectedPayment.id, status: 'APPROVED' });
+                        toast.success('Payment approved and marked as paid');
                         setIsReceiptModalOpen(false);
                       } catch (e: any) {
-                        setReviewError(e?.message || 'Failed to approve payment');
+                        const msg = e?.message || 'Failed to approve payment';
+                        setReviewError(msg);
+                        toast.error(msg);
                       }
                     }}
                   >

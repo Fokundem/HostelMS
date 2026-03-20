@@ -14,3 +14,11 @@ export function normalizePaymentType(value: string | null | undefined) {
   return (value || '').toString().toLowerCase();
 }
 
+export function getFullImageUrl(path: string | null | undefined) {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  // Ensure we don't double up on slashes
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+  return `http://localhost:8000${cleanPath}`;
+}
+

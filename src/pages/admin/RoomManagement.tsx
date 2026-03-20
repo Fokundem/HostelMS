@@ -18,6 +18,7 @@ import {
   Droplets,
   Zap,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import type { Room } from '@/types';
 import { useAllRooms, useCreateRoom, useDeleteRoom, useHostels, useUpdateRoom } from '@/hooks/api';
 
@@ -88,25 +89,9 @@ export default function RoomManagement() {
   );
 
   const handleAdd = async () => {
-    await createRoom({
-      hostelId: formData.hostelId || undefined,
-      data: {
-        roomNumber: formData.roomNumber,
-        block: formData.block,
-        floor: formData.floor,
-        capacity: formData.capacity,
-        price: formData.price,
-        amenities: formData.amenities,
-      },
-    });
-    setIsAddModalOpen(false);
-    resetForm();
-  };
-
-  const handleEdit = async () => {
-    if (selectedRoom) {
-      await updateRoom({
-        roomId: selectedRoom.id,
+    try {
+      await createRoom({
+        hostelId: formData.hostelId || undefined,
         data: {
           roomNumber: formData.roomNumber,
           block: formData.block,
@@ -114,19 +99,50 @@ export default function RoomManagement() {
           capacity: formData.capacity,
           price: formData.price,
           amenities: formData.amenities,
-          status: formData.status.toUpperCase(),
         },
       });
-      setIsEditModalOpen(false);
-      setSelectedRoom(null);
+      toast.success('Room created successfully');
+      setIsAddModalOpen(false);
+      resetForm();
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to create room');
+    }
+  };
+
+  const handleEdit = async () => {
+    if (selectedRoom) {
+      try {
+        await updateRoom({
+          roomId: selectedRoom.id,
+          data: {
+            roomNumber: formData.roomNumber,
+            block: formData.block,
+            floor: formData.floor,
+            capacity: formData.capacity,
+            price: formData.price,
+            amenities: formData.amenities,
+            status: formData.status.toUpperCase(),
+          },
+        });
+        toast.success('Room updated successfully');
+        setIsEditModalOpen(false);
+        setSelectedRoom(null);
+      } catch (e: any) {
+        toast.error(e?.message || 'Failed to update room');
+      }
     }
   };
 
   const handleDelete = async () => {
     if (selectedRoom) {
-      await deleteRoom(selectedRoom.id);
-      setIsDeleteModalOpen(false);
-      setSelectedRoom(null);
+      try {
+        await deleteRoom(selectedRoom.id);
+        toast.success('Room deleted successfully');
+        setIsDeleteModalOpen(false);
+        setSelectedRoom(null);
+      } catch (e: any) {
+        toast.error(e?.message || 'Failed to delete room');
+      }
     }
   };
 

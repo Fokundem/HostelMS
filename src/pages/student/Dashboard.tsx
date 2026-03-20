@@ -10,8 +10,10 @@ import {
   BedDouble,
   Calendar,
   Plus,
+  Users,
+  Building2,
 } from 'lucide-react';
-import { useMyAllocation, useMyComplaints, useMyPayments } from '@/hooks/api';
+import { useAvailableRooms, useMyAllocation, useMyComplaints, useMyPayments } from '@/hooks/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { Link } from 'react-router-dom';
 
@@ -20,6 +22,7 @@ export default function StudentDashboard() {
   // Tabbed UI can be reintroduced when student sub-pages exist.
   const { user } = useAuth();
   const { data: myAllocation } = useMyAllocation();
+  const { data: availableRooms = [] } = useAvailableRooms();
   const { data: myPayments = [] } = useMyPayments();
   const { data: myComplaints = [] } = useMyComplaints();
 
@@ -256,6 +259,45 @@ export default function StudentDashboard() {
               </div>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Available Rooms Section */}
+      <div className="dashboard-card bg-white border border-gray-200 p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-semibold text-gray-900">Explore Available Rooms</h3>
+          <Link to="/student/room" className="text-[#1a56db] text-sm hover:underline font-medium">View All Rooms</Link>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {availableRooms.slice(0, 3).map((room: any) => (
+            <div key={room.id} className="p-4 bg-gray-50 border border-gray-200 hover:border-blue-200 transition-colors">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-lg font-bold text-gray-900">Room {room.roomNumber}</span>
+                <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-bold uppercase tracking-wider">
+                  {room.status}
+                </span>
+              </div>
+              <div className="space-y-2 mb-4">
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <Building2 className="w-4 h-4" />
+                  <span>Block {room.block}, Floor {room.floor}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <Users className="w-4 h-4" />
+                  <span>{room.capacity} Bed Capacity</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                <span className="text-[#1a56db] font-bold">{room.price.toLocaleString()} FCFA</span>
+                <Link to={`/student/room?room=${room.id}`} className="text-xs font-semibold text-gray-400 hover:text-gray-600">Details</Link>
+              </div>
+            </div>
+          ))}
+          {availableRooms.length === 0 && (
+            <div className="col-span-full py-8 text-center text-gray-500">
+              No other rooms available at the moment.
+            </div>
+          )}
         </div>
       </div>
 
